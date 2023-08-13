@@ -3,30 +3,25 @@ apiVersion: v1
 metadata:
   name: services-config
   namespace: banpais-services
-  selfLink: /api/v1/namespaces/banpais-services/configmaps/services-config
-  uid: 4e0687d6-83c4-4560-b9a1-3fc052d8b547
-  resourceVersion: '593708841'
-  creationTimestamp: '2022-05-02T21:09:32Z'
+  uid: 1089e29f-79e2-4c37-bb38-01d24d4507c8
+  resourceVersion: '382909883'
+  creationTimestamp: '2023-08-06T04:18:39Z'
   managedFields:
-    - manager: Mozilla
+    - manager: oc
       operation: Update
       apiVersion: v1
-      time: '2023-07-17T15:57:06Z'
+      time: '2023-08-06T04:18:39Z'
       fieldsType: FieldsV1
       fieldsV1:
         'f:data':
-          'f:ach-service-modular.yml': {}
-          'f:transferences-server-modular-bp.yml': {}
           'f:token-auhtorization-server.yml': {}
           'f:onboarding-service.yml': {}
           'f:backoffice-support-server.yml': {}
           'f:statements-server.yml': {}
           'f:thirdparties-service.yml': {}
           'f:minio': {}
-          'f:ach-service.yml': {}
           'f:credit-card-server-bp.yml': {}
           'f:notifications-service.yml': {}
-          'f:application-cn.yml': {}
           'f:application.yml': {}
           'f:app-customization-server.yml': {}
           'f:banpais-aguas-san-pedro-payment-service.yml': {}
@@ -34,13 +29,12 @@ metadata:
           'f:administration-server.yml': {}
           'f:app-customization-server-bp.yml': {}
           'f:application-bp.yml': {}
-          'f:notifications-service-bp.yml': {}
           'f:application-gw.yml': {}
           'f:banpais-enee-payment-service.yml': {}
           'f:application-test.yml': {}
+          .: {}
           'f:onboarding-service-bp.yml': {}
           'f:transferences-server-modular.yml': {}
-          'f:authentication-server.yml': {}
           'f:banpais-claro-payments-service.yml': {}
           'f:end-of-service.yml': {}
           'f:providers-catalog-server-bp.yml': {}
@@ -50,24 +44,39 @@ metadata:
           'f:banca-wrapper-service.yml': {}
           'f:banpais-hondutel-payments-service.yml': {}
           'f:facephi-service.yml': {}
-          'f:api-gateway-server-bp.yml': {}
-          'f:credit-card-payments-service-bp.yml': {}
-          'f:core-event-listener-service.yml': {}
-          'f:crm-management-server.yml': {}
           'f:accounts-vault-server-bp.yml': {}
           'f:application-providers-bp.yml': {}
           'f:documents-service.yml': {}
           'f:favorites-server.yml': {}
           'f:accounts-permission-server-bp.yml': {}
           'f:accounts-permission-server.yml': {}
-          'f:app-settings-server-bp.yml': {}
           'f:banpais-tigo-payments-service.yml': {}
           'f:app-keystore-server.yml': {}
           'f:push-notifications-management-service.yml': {}
           'f:geographic-service.yml': {}
-          'f:api-gateway-server.yml': {}
           'f:exchanges-server.yml': {}
           'f:data-storage-service.yml': {}
+    - manager: Mozilla
+      operation: Update
+      apiVersion: v1
+      time: '2023-08-10T18:30:52Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:data':
+          'f:ach-service-modular.yml': {}
+          'f:transferences-server-modular-bp.yml': {}
+          'f:ach-service.yml': {}
+          'f:application-cn.yml': {}
+          'f:notifications-service-bp.yml': {}
+          'f:authentication-server.yml': {}
+          'f:user-recognition-server.yml': {}
+          'f:api-gateway-server-bp.yml': {}
+          'f:credit-card-payments-service-bp.yml': {}
+          'f:core-event-listener-service.yml': {}
+          'f:crm-management-server.yml': {}
+          'f:app-settings-server-bp.yml': {}
+          'f:image-plus-server.yml': {}
+          'f:api-gateway-server.yml': {}
           'f:transferences-server-bp.yml': {}
 data:
   application-providers-bp.yml: |
@@ -941,6 +950,25 @@ data:
       min-size: 16
       size-policy: FIXED
   authentication-server.yml: |
+    server:
+      servlet:
+        multipart:
+          max-file-size: 50MB
+          max-request-size: 50MB
+
+    user-recognition:
+      client: 
+        process-id: 'PASSWORD_RESET'
+        remote-server: http://user-recognition-server:8080
+        #connection-timeout: 2s
+        #response-timeout: 30s
+
+    management:
+      zipkin:
+        enabled: true
+        tracing:
+          endpoint: http://zipkin:9411
+
     regional:
       services:
         login:
@@ -1086,10 +1114,9 @@ data:
           library: ${system-core.queue-library}
           queue-name: ${system-core.queue-name-write}
 
-
-
-
     core:
+      configuration-clients:
+        crm-management-endpoint: http://crm-management-service:8080/
       error-mapping:
         enabled: true
         default-status: bad-request
@@ -1118,7 +1145,13 @@ data:
           connection-timeout: 1s
           max-connections: 128
 
+    cache:
+      timeToExpireCacheExpiryMinutes: 1m
 
+    custom:
+      error-messages:
+        user-cache-not-found: "Es necesario reiniciar el proceso de validación debido a que el plazo de tiempo ha caducado."
+      
     logging:
       level:
         '[org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor]': error 
@@ -4338,8 +4371,9 @@ data:
             Multipayment: true
             enableDigitalBankAccount: true
             enableSplitItAll: true 
+            enableExtrafinancing: true
             MultipaymentRegisterDueDays: 3d
-            welcomMessage: RXN0aW1hZG8gY2xpZW50ZXzCoUFob3JhIHB1ZWRlcyByZWFsaXphciB0dXMgZ2VzdGlvbmVzIGEgdHJhdsOpcyBkZSBCUCBlbiBMw61uZWEh
+            welcomMessage: wqFHcmFjaWFzIHBvciB1c2FyIEJQIGVuIEzDrW5lYSF8Tm92ZWRhZGVzOiBBaG9yYSBjb24gdHUgdGFyamV0YSBkZSBjcsOpZGl0byBwb2RyYXMgc29saWNpdGFyIHR1IEV4dHJhZmluYW5jaWFtaWVudG8gcG9yIG1lZGlvIGRlIEJQIGVuIEzDrW5lYSBBcHAuXG5CQU5QQcONUyBzaWVtcHJlIGEgdHUgbGFkby4=      
             ercomment: XlswLTlBLVphLXpcIF17MCw2MH0k
           contacts-info:
             whatsapp: +50425451212
@@ -4365,10 +4399,10 @@ data:
             reset-password: /v1-crypt/reset-password/
             set-password: /v1-crypt/set-password/
             thirdparties: /v1-crypt/thirdparties
-            ach-accounts: /v1-crypt/ach
-            ach-configuration: /v1-crypt/transferences/ach-configuration
-            transferences: /v1-crypt/transferences
-            rates-apply-in-transference: /v1-crypt/transferences/rate-to-apply
+            ach-accounts: /v1-crypt/ach-modular/
+            ach-configuration: /v1-crypt/transferences-modular/ach-configuration
+            transferences: /v1-crypt/transferences-modular
+            rates-apply-in-transference: /v1-crypt/transferences-modular/rate-to-apply               
             permissions-and-operations: /v1-crypt/permissions
             loan-payments: /v1-crypt/payments/loan
             credit-card-payments: /v1-crypt/payments/credit-card
@@ -4389,6 +4423,9 @@ data:
             payment-services: /v1-crypt/payments/category
             services-payments: /v1-crypt/payments/services
             crm-management: /v1-crypt/crm
+            recovery-password: /v1-crypt/password-recovery/
+            recovery-verify: /v1-crypt/password-recovery/verify
+            extra-financing: /v1-crypt/extra-financing
           options-menu:
             - code: accounts
               description: Cuentas
@@ -4439,6 +4476,10 @@ data:
             - configurations
             - tutorial
           features:
+            bubble-menu:
+              properties:
+                extra: Extra - \nfinanciamiento | https://www.banpais.hn/boletines/autobole/uploadedimages/bubblemenu | Extrafinanciamiento
+                gestiones: Gestiones \nen línea | https://www.banpais.hn/boletines/autobole/uploadedimages/bubblemenu | Gestiones
             onboarding:
               name: "Enrolamiento digital"
             digital-account:
@@ -4524,482 +4565,8 @@ data:
                 thirdparties: /v1-crypt/thirdparties
                 ach-accounts: /v1-crypt/ach
                 ach-configuration: /v1-crypt/transferences/ach-configuration
-                transferences: /v1-crypt/transferences
-                rates-apply-in-transference: /v1-crypt/transferences/rate-to-apply
-                permissions-and-operations: /v1-crypt/permissions
-                loan-payments: /v1-crypt/payments/loan
-                credit-card-payments: /v1-crypt/payments/credit-card
-                providers-payments: /v1-crypt/payments/providers
-                payments: /v1-crypt/payments/services
-                contract-generator: /v1-crypt/documents/
-                last-movements: /v1-crypt/last-movements
-                onboarding: /v1-crypt/onboarding
-                catalogs: /v1-crypt/catalogs/
-                security-profile: /v1-crypt/security-profile
-                push-notifications-management: /v1-crypt/push
-                digital-account: /v1-crypt/digital-account
-                splitit-all: /v1-crypt/dividelo-todo
-                providers: /v1-crypt/multi-payments/
-                register-device: /v1-crypt/register-device
-                payment-favorites: /v1-crypt/favorites/payments
-                payment-categories: /v1-crypt/payments/categories
-                payment-services: /v1-crypt/payments/category
-                services-payments: /v1-crypt/payments/services
-                crm-management: /v1-crypt/crm
-                extra-financing: /v1-crypt/extra-financing
-              options-menu:
-                - code: accounts
-                  description: Cuentas
-                - code: transfers
-                  description: Transferencias
-                - code: payments
-                  description: Pagos
-                - code: online_managements
-                  description: Gestiones en línea
-                - code: admin
-                  description: Mantenimiento de cuentas
-                - code: contacts
-                  description: Contáctanos
-                - code: locations
-                  description: Ubicaciones
-                - code: exchanges
-                  description: Tipo de cambio
-                - code: external_links
-                  description: Solicitud de productos
-                - code: block
-                  description: Bloqueos
-                - code: configurations
-                  description: Configuraciones
-                - code: tutorial
-                  description: Tutorial
-                - code: create_user
-                  description: Activar/Crear mi usuario
-                - code: notifications
-                  description: Notificaciones
-              external-menu:
-                - create_user
-                - external_links
-                - exchanges
-                - locations
-                - contacts
-              internal-menu:
-                - accounts
-                - transfers
-                - payments
-                - online_managements
-                - admin
-                - contacts
-                - locations
-                - exchanges
-                - external_links
-                - notifications
-                - block
-                - configurations
-                - tutorial
-              features:
-                bubble-menu:
-                  properties:
-                    option1: Extrafinanciamiento | https://www.banpais.hn/boletines/autobole/uploadedimages/bubblemenu | Extrafinanciamiento
-                    option2: Gestiones | https://www.banpais.hn/boletines/autobole/uploadedimages/bubblemenu | Gestiones
-                onboarding:
-                  name: "Enrolamiento digital"
-                digital-account:
-                  name: "Cuenta digital"
-                  enabled: true
-                transferences:
-                  version: "365" 
-                credit-card: 
-                  name: "Tarjeta de credito BP"
-                  description: "Habilita"
-                  version: banpais #regional/dividelo-todo
-                payments: 
-                  version: simple # simple / multipagos
-                  name: "Habilita la versión simple de pagos"
-                ciber-security:
-                  version: complex
-                  name: "Ciber-Seguridad BIES"
-                  properties:
-                    application-timeout: 600
-                    message-timeout: 20
-                    policies-security-text: '["La contraseña debe ser alfanumérica","La nueva contraseña debe ser diferente a las utilizadas previamente hasta 12 ciclos","Al definir la contraseña considerar que la contraseña es sensible al uso de mayúsculas y minúsculas","No utilizar ninguno de los siguientes símbolos ~ <> ! / [] {} ; # y la letra ñ","No debe poseer datos personales como: Número de identificación, fecha de nacimiento, nombres, apellidos, número de teléfono, ni aspectos relacionados a Bi \"BANCO,INDUSTRIAL,BISV y BIES\" o sus combinaciones.","No se permite usar más de 3 caracteres iguales consecutivos numéricos o alfanuméricos","Para usuarios de personas jurídicas es inválido el uso de datos de identificación de la institución: nombre de la empresa comercial, razón social o números de teléfono de la empresa."]'
-                    policies-vigency-test: '["Período de inactivación por no ingreso al servicio: 45 días","Inactivación de usuario por ingreso de contraseña incorrecto: 3 intentos fallidos","Período para cambio de contraseña: Las que establezcas en tu perfil de seguridad puede ser de 45 a 60 días","Vigencia de contraseña temporal: 24 horas","Cierre de sesión por inactividad: 3 minutos"]'
-                    policies-remember-text: '["Que por tu seguridad después de 3 intentos tu usuario se desactivará y deberás solicitar una nueva contraseña a través de nuestras agencias","call center o WhatsApp"]'
-          -
-            name: "Extrafinanciamiento"
-            supported-versions:
-            - 3.9.1
-            - 3.9.3
-            properties:
-              version: 2
-              environment: TEST
-              accent-color: #FFB800
-              language: es
-              locale: es_HN
-              country: HN
-              currency: HNL
-              application-timeout: 600
-              custom-properties:
-                prefix: "+504"
-                fpandroid: "ew0KICAgICJjdXN0b21lciI6ICJCYW5jbyBJbmR1c3RyaWFsIEhOIiwNCiAgICAiZG9jdW1lbnRUeXBlIjogIkxpY2Vuc2VFbnZlbG9wZSIsDQogICAgImxpY2Vuc2UiOiB7DQogICAgICAgICJjb21tZW50cyI6ICJQcm9kdWN0aW9uIiwNCiAgICAgICAgImRhdGVFbmQiOiAiMjAyMy0xMi0xOSIsDQogICAgICAgICJleHRyYURhdGEiOiAiM0Q0MzBGMEMzMzBEMDczNTA0MjcwQTMzMUQwNDIzMEYxNzQ3NkE0QTFBMTQxNjIyMjQxMTI5M0IyNzI2NTcxMDA5NUE1MDMyMkQwRTJGMjAyNDA0MEMwOTAxMEIxMjAwMDgxRTJDMDkwRjIwMzExMDI1MzczMjE0Mjk1QjA1MDkzMjU1MzY2OTJDMzgxRjAyMzM1NTIyNTA1RjI4Mzg1MTFEMTkxMDQyMTQyQTExMDAwNDVFMEYzMDJEMTkyNDMzM0Q1RDMyNTM0ODUwNjQxQjM4NjkxNjFBMDQxRjMyMjEwRDIyMUIzQzFDMUQxOTBBMkMxNjBCN0YyNTBBMzMwNjQ4MTMzQTM4M0MyMTE1MzIzQzNGMUEzQjEzMkMwMDA4MjczRjIyNzcxODBEMzMxNjJFMDUwMjE3MTYyOTIzNUQwMjI0MDMxNDIwMTExODNCMTMyQTU0MkExQzA5M0EwNzA2MEUyRDExNTAwQzFGMUI1NzE1MEEwOTFFMTczNTU2NUQwMDIwMkMxQzM4MTEzNTY1MzkyRjczNTgwQjI4MUYzRDE4N0UzQjNBNTUxNDE4M0YxMzJFMDIzNTA1MDYzQjJBMTQxNzU2MDIwMDJBMjMxQjNBM0QzOTE4MDIyMTBDMzIwMjIzM0UwQjBFMTA1MDM1MzUyMzIzMjMzNzIyMjEwNDVDNTkyQTRBMzQzNDIyMzEwQTcwMkIwQjA2MzI1MDUxMjkyNTM3MTIzRTJCMzAwMDE3MzYzNjdCMUUxRDI1MkYzMDI0MTUyMDUxN0UxMzUyMjYyODI0MDQyNDE2MTUyQjA5M0I1RjdGNTMyMTVEMzI1RTNCMDkyQzMyMTYxMzBGNUIwNDM0MTAyODA2NUYxQjdFMTgyRjI4MDk0NzJGNjQ0RDQxMDkzOTBCMEMyODEyMDYzMTNGMDMwQzI4MjUwQzA2MjUwNTBDMjgxNTQxNUY3MjEzMzUyODQxNDM0NTcwMzQ0QjI1MTQxMDExM0YwNTBDMzQzRDQxNUY3MDM0NEIwNDAwMEQwNjNGNDgyMDI4MDUxNjE2MjQxQTAwMjcwRDQzMkQxRTM0NEI2QTNEMEQ0NTcwNDg0OTFBNDMwNzBBMzMxRDA0MjMwRjE3MzEyOTE4MEMxQTQzNTk0NTBDNEEyNTJGMDIwNjBCMjMwRDJDMjgxNzA2MDkzRjE4MEMxQTQzNEYzOTNFNDg0OTY2NDEzRjQ3M0MwMTBBMjMwRjEwMDAwQzRBNTM2NjFBM0YwQjcwNDg0OTY2NDE0MzQ1NzAzNDRCMjUwRTBFMDgzNTA2MUQzNTNENDE1RjcwMzQ0QjE2MTMwQzAxMjUwQjFEMkYwRTBEMzk3MjQ0MzUyODQxNDM0NTcwNDg0OTY2NDEzRjQ3MzQwOTFEMjMyNDBEMDEwQzRBNTM2NjNENDE1NzYwNUE1QTZCNTA1MTQ4NjE1MTM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjJBMDgwMDAwM0UxQjBDMDIwRTAwMTAzRDBEMDczMjNENDE1RjcwMzQ0QjM1MzMxNDI0MTEyOTI4MTQwMDI0NTEyNTMxNUI3RjE1MkYwODFBMTgyNTJCMkIwQjA3M0UyQTAxMjczOTJFMEYzQTE4MzAzRjAyMzUzNDIxMTE1QTJBMkUzMDUzMDM1MTJEMTczODAwMzU2MDFBNTE3MDBGM0E1NzI4MjExMTZEMzMyODE3MzUzQzVGMjAxNzJGMUYxMTBCM0M3MjE1NTE0RTY1NUMxQTE3NEUxNDFDMzEyNzMzMEUyQTIwMUQwOTI0MUMzNjJEMkUxMDNFNDcyNDI1MTQwNDRFMjYwMjM5MTMwNjE3MzQwOTA3MUIxNDM0MkUwNjNEMUYzRTBENTAxQTBCMDYyRTJGMkEyNTE1MTAxQzFCNUMyRDAzMDExMjE1MjkxOTE0MzQyODUyMUYyNDA4MTUyMDA0MDgxODI5NTEyMzM4MTk1MTIwMzIwODMxMzAzNzUwNjgzODIxMDMzQjNBMTcwMDVEMzgwMDU0NUEwRDFEMjczQzM3NTkzOTNDNjAyQzE5MTAzNDJDMDQwMDNEMDcxNDBEMTYxMTYzM0EwMTA1MDQxOTNDMDgwMTE5MkQwNjBFMzQzNzFCM0YyNDI5MTI1NjAwMEQyMjBDMDQzNTI0MTQzQzVENzYwRDQ4MzIwMTFBMzAyNTU3MjkwRDMzMEE1MTdFMEUyNzMxMjcwNjJBMUYyNzE1MzAwMzQzMUYzMjAyMkQzNjExMkQyMTdFNTkxMTU0MTMxMDI1MkIwMzE0MTMxRTMxM0E3MDU4NTEyNzY4MEE1RjE0MkUyRTM0MjMyQjBFNzQyMzM2MTYxRDNFNUUzNDU5MUEyOTFEMzE0NjAwM0Q0MTQ5MEMwNjQ5NjY0MTQzNDU3MDQ4NDkxQTQzMEYwQzMzMEQwNzM1MDQzNzBBM0IwRDA3MEYwQzAyMDIzNTM0NEI3QzQxMTcxNzI1MEQ0NTFBMEY0MzQ1NzA0ODQ5NjY0MTQzMzk3MjA3MUExQTQzNTk0NTBDNEEyODI4MDUxMTBBMzkwQzM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjM2MDAwMDBFMzEwRjBDMDgwMDBFMDAwQzRBNTM2NjNENDEwRDNFNDYwQTI5MEM0RDA3Mzk0NjBCMjcwRjEzMDQzOTFCMzU2NDREM0YwQjcwNDg0OTY2NDE0MzQ1NzAzNDRCMzYxMzBDMDEyNTBCMUQxQTQzNTk0NTBDNEEzQTIzMEQxMzBEMTkyQzM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjMwMDQxMTE2MzkwNzA3MUE0MzU5NDUwQzRBNTg2ODUxM0Y0NzBDMDY0OTY2NDE0MzE4N0MzNDA3NjY0MTQzNDUwQzRBMTkzNDBFMTUwQzM0MEQxQjFBNDM1OTQ1MEM0QTJGMjcwMjA2MzUzODAxMzU2NDNEMEQxODcyNDQ0QjJBMEUwNDAyMzkwNjBFNjQ1QjA1MDQzQzFCMEMzQiIsDQogICAgICAgICJsaWNlbnNlRG9jdW1lbnQiOiB0cnVlLA0KICAgICAgICAibGljZW5zZUZhY2lhbCI6IGZhbHNlLA0KICAgICAgICAibGljZW5zZVRva2VuRG9jdW1lbnQiOiB0cnVlLA0KICAgICAgICAibG9nZ2luZyI6IGZhbHNlLA0KICAgICAgICAib3MiOiAiQW5kcm9pZCIsDQogICAgICAgICJwYWNrYWdlTmFtZSI6ICJobi5jb20uYmkuYmFucGFpcyIsDQogICAgICAgICJwcm9kdWN0IjogIlNlbHBoSUQiLA0KICAgICAgICAidmVyc2lvbiI6ICIxLjAiDQogICAgfSwNCiAgICAicHJvdmlkZXIiOiAiRmFjZVBoaSINCn0"
-                fpios: "ew0KICAgICJjdXN0b21lciI6ICJCYW5jbyBJbmR1c3RyaWFsIEhOIiwNCiAgICAiZG9jdW1lbnRUeXBlIjogIkxpY2Vuc2VFbnZlbG9wZSIsDQogICAgImxpY2Vuc2UiOiB7DQogICAgICAgICJjb21tZW50cyI6ICJQcm9kdWN0aW9uIiwNCiAgICAgICAgImRhdGVFbmQiOiAiMjAyMy0xMi0xOSIsDQogICAgICAgICJleHRyYURhdGEiOiAiM0Q0MzBGMEMzMzBEMDczNTA0MjcwQTMzMUQwNDIzMEYxNzQ3NkE0QTFBMTQxNjIyMjQxMTJEM0MxRjUzNUExMTFDMDUyMzJFMDMwRDI3MzgwOTMxMEIxNDAxMzIxQTAwMEIyQjE1MTMwNzNEMEMwRTBCMDM1MDU3MzYxQjEzMzExMzA5NEUyOTA1MTkxNzE1MzAwODI4MjMxMDE2MDYyMTI0MUU1RTU4MTMwMzA2MDgxQjFDMDg3MTU1MEI1MDM1NUY1OTc3MjIyRTEyMDY1QTI0MUM1NTVCNTIyNTFEMkQzMzA0NTMzMzNGMEUxMzA5MEM0ODJGMzk1RDI4MzAwMjQ4MzQxOTJDMDgzRjA5MEY1MjNDM0I0NjZEMkUzNTE3M0MyRDNBMDQyODM2MDY2NDNEMjgyQzU1MzYyMDA1MEUwMDAyMDI0ODAzMzU1QzVEMDcxODI5MkMzMTAwMjExMDAyMTcxMzMxMEQyRTAyMTg1NTFDM0MxMTNCNzcyRDU3MjIxNDAzMzk3RjAwMTExMTNCMUEzRTEzMTY1MzJFMTYyNjI1MDgyRjVBMUQ2OTNCMjIxRTU2NUIwNDMxMjk0MjdGMDczNTM1MUMzQzJGMDc1MDE5MDgzRTE5M0QzQzU5MEMyRDNBMEQxQzBBMEM0QzAxMUI0NzAyNzMyNDNBMzIzNDJGMkYwMzU4MDkxMTEyM0QzODAwNTUwMTAwNjAyRDNEMEYzNDA0MzQ2ODFCMDAyRTMxNTMwMDYwMjcwMTBCMTkzNjA2MzUyOTIwNzYyMDJGMUYyMDNFMDIzMzI1MkIyRTMzMkQ1RDAxMkE1NzBBMzY1RTVEMEEyNDMzMDMzMzA3MEEwMjMwMzQwMDAzMUIxODMzMjMzNDUwMjczMjJFMEQ0RTUxMjYwNTA2MDQwMTQzNEY0NzNDMDEwQTIzMEYxMDAwMDQwNzAyMjMwRjI3MEEzMzFEMDQyMzBGMTc0NzZBNEExMjFBMEY0MzQ1NzA0ODM1NjQwMjE2MTYyNDA3MDQyMzEzM0Y0NzZBNDgzNTY0MjMwMjBCMzMwNzQ5MEYwRjA3MTAyMzFDMUIyRjAwMEY0NTE4MjYzNTY0NEQzRjBCNzA0ODQ5NjYzRDQxMDEzRjBCMUMyQjA0MEQxMTA0MTExOTIzM0Q0MTVGNzAzNDRCMEEwODAwMDAzRTFCMEMwMzBGMTUwMDNDMDcxOTIzM0Q0MTQ5MEMwNjQ5NjY0MTQzMzk3MjA0MDAyNTA0MEQxNjM1MzQ0QjdDNDExODM5M0U0ODQ5NjY0MTQzNDU3MDQ4MzU2NDAyMEMwODNEMEQwNzMyMTIzRjQ3NkE0ODM1NjQzMTExMEEzNDFEMEEzMjA4MEMwQjBDNEE0NTFBMEY0MzQ1NzA0ODQ5NjY0MTQzMzk3MjBDMDgzMjA0MjYwQjM0MzQ0QjdDNDEzRjQ3NjI1ODVCNzU0QzUyNTc3RDU5NTAxQTQzNEYzOTNFNDg0OTY2NDE0MzQ1NzA0ODM1NjQwRDBBMDYzNTA2MUEyMzI1MEMwNjI1MDUwQzI4MTUzRjQ3NkE0ODM1NjQxMjMxMTIxMTI5MjgwMzM0M0E1NzY5MUMyNTJCMkIwQjA3M0UyQTAxMjczOTJFMTAzMjNGMjMyRTAzMEUxMTIwMEEwNDIyMDYyRTA3NjM1QTBGMzUxQjE0MTczQTQzMTAyQjExMzIxMTAzMDUxMTBEMTgzMzAyMTIyOTI3NzA1MDM2MDczNTA1MjIzMjAwNTQ1MTM4NUQwQzcxNTE1MjI2MUQxRjNGNzQyQzM5NTE2ODVGMUMzMzI1MTYwMDYwM0UwNjIwMUIyQzA4N0IyMjAwNzMyMDE1MDY3QjM5MjAwMjAwMUEwRDNDNUYwNTE1NEU0ODJBMDYxQTA1MDMzMjIxMkMwNTBCNUQxMzIwMDk1MTA1MkQzQzIwMDgyNzA2N0IwRTBDNzI1NTIyMUMxQTIxMDgyRTI5MzUwNjI0MUUwODIzMjYyNzFDNjYxMTA1M0YzMzUyMjk2NDJGMkQyRDMxNUEwNDIyMUMwMjM0MzYzNjEyNjAyMzJGMDgyRDJEMkI2OTEwNTAxNTJBM0I1MjY4MDkwODA3NEE1QTAzMDYzODI1MTIyNzIyNTQyQTA1MDczNzM1MTk1RDNGMjAwMzIzMTQyRjA4N0YwQzIyNjkwQTU2MjAwOTNGMEQwMTI3MjY1QzNBMUMyQjEzMzAyNTUxMzIwRDU5MDMzNTJBMzAzNzM5NTEzNTA4MEIzNTYwMEQ1OTA5MDkyRTFEMDUwQjBDMDcyODUzMjQxQzEyMTkxMDBBMTYyMTE4MjMwQTAzNTUyNDJFNjQwNzBGNzA1NTJGMjAwMDBFMEEyOTAyMjczNDA3MEQzQTM1MTAxNjI3MDc1RDFFMUMyNjI4NEE2MjJCM0MyODBDMjQzOTcyNDQzNTI4NDE0MzQ1NzA0ODQ5NjY0MTNGNDczQzAxMEEyMzBGMTAwMDA0MDcwMjIzMEYyQTA4MzEwRjBDMUE0MzU5NDUzNjA5MDUzNTA0NEYzOTNFNDg0OTY2NDE0MzQ1NzA0ODM1NjQwRTEwMzk3MjUyNDkxQTQzMEEyQTAzMzQ0QjZBM0QwRDQ1NzA0ODQ5NjY0MTQzNDUwQzRBMTkyNzAyMDgwNDM3MEQyNzI3MEMwNjM5NzI1MjQ5MUE0MzAwMEEzRDQ2MEIyNzBGMTMwNDM5MUI0NzJCMDMwMjBCM0IwMTA3MjEzRDQxNDkwQzA2NDk2NjQxNDM0NTcwNDg0OTFBNDMxMzE3M0YwQzFDMjUxNTNGNDc2QTQ4MzU2NDMyMDYwOTIwMDAyMDAyM0Q0MTQ5MEMwNjQ5NjY0MTQzNDU3MDQ4NDkxQTQzMTUwMDIyMUIwMDI5MEYzRjQ3NkE0ODM1NjQ1MDRENTUwQzRBMzUyODQxNDM0NTcwMTU0NTFBMEY0MzQ1NzA0ODM1NjQxMTExMEEyNjAxMEQyMzEzM0Y0NzZBNDgzNTY0MjcwMjA2MzUzODAxMkYzRDQxMzkzRTE1NEI2QTQzMEYwQTM3MEYwMDI4MDY0MTVGMzYwOTA1MzUwNDFFIiwNCiAgICAgICAgImxpY2Vuc2VEb2N1bWVudCI6IHRydWUsDQogICAgICAgICJsaWNlbnNlRmFjaWFsIjogZmFsc2UsDQogICAgICAgICJsaWNlbnNlVG9rZW5Eb2N1bWVudCI6IHRydWUsDQogICAgICAgICJsb2dnaW5nIjogZmFsc2UsDQogICAgICAgICJvcyI6ICJpT1MiLA0KICAgICAgICAicGFja2FnZU5hbWUiOiAiY29tLmJhbnBhaXMubWJhbmtpbmciLA0KICAgICAgICAicHJvZHVjdCI6ICJTZWxwaElEIiwNCiAgICAgICAgInZlcnNpb24iOiAiMS4wIg0KICAgIH0sDQogICAgInByb3ZpZGVyIjogIkZhY2VQaGkiDQp9"
-                ACH_NAME_REGEXP: ^([a-zA-Z0-9]{1,}\s[a-zA-Z0-9]{3,}|[a-zA-Z0-9]{2,}\s[a-zA-Z0-9]{2,}|[a-zA-Z0-9]{3,}\s[a-zA-Z0-9]{1,})(\s[a-zA-Z0-9]{1,})*\s*$
-                ACH_NAME_REGEXP_V2: ^([a-zA-Z0-9]{1,}\s[a-zA-Z0-9]{3,}|[a-zA-Z0-9]{2,}\s[a-zA-Z0-9]{2,}|[a-zA-Z0-9]{3,}\s[a-zA-Z0-9]{1,})(\s[a-zA-Z0-9]{1,})*\s*$
-                valid-characters: "~!/<>[]{};*#ñÑ"
-                contract-e2-id: contract01
-                commission_ACH: "Q29taXNpw7NuIHBvciBlbnbDrW8gdHJhbnNmZXJlbmNpYSBBQ0ggTC40MC4wMA=="
-                #PRM-4880: Ynl0ZQ==
-                #PRM-5880: true
-                #PRM-6880: true
-                multipayment-url-icon: https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/
-                Multipayment: true
-                enableDigitalBankAccount: true
-                enableSplitItAll: true 
-                MultipaymentRegisterDueDays: 3d
-                welcomMessage: wqFHcmFjaWFzIHBvciB1c2FyIEJQIGVuIEzDrW5lYSF8Tm92ZWRhZGVzOiBBaG9yYSBjb24gdHUgdGFyamV0YSBkZSBjcsOpZGl0byBwb2RyYXMgc29saWNpdGFyIHR1IEV4dHJhZmluYW5jaWFtaWVudG8gcG9yIG1lZGlvIGRlIEJwIGVuIEzDrW5lYSBBcHAuXG5CQU5QQcONUyBzaWVtcHJlIGEgdHUgbGFkby4=      
-                ercomment: XlswLTlBLVphLXpcICpdezAsNjB9JA==
-              contacts-info:
-                whatsapp: +50425451212
-                email: asuservicio@banpais.hn
-                phone: +50425451212
-                email-subject: "Soporte Banpaís"
-              endpoints:
-                interest-sites: /v1-crypt/settings/sites
-                statements: /v1-crypt/statements/
-                resumes: /v1-crypt/resumes/
-                login: /v1-crypt/oauth/
-                logout: /v1-crypt/oauth/revoke
-                token: /v1-crypt/tokens/
-                accounts-and-permissions: /v1-crypt/accounts/
-                app-customization: /v1-crypt/settings
-                facephi: /v1-crypt/facephi/
-                rates: /v1-crypt/settings/rates
-                places: /v1-crypt/settings/locations
-                favorites: /v1-crypt/favorites/
-                favorites-owns: /v1-crypt/favorites/owns
-                favorites-thirdparties: /v1-crypt/favorites/thirdparties
-                favorites-payments: /v1-crypt/payments/favorites
-                reset-password: /v1-crypt/reset-password/
-                set-password: /v1-crypt/set-password/
-                thirdparties: /v1-crypt/thirdparties
-                ach-accounts: /v1-crypt/ach-modular/
-                ach-configuration: /v1-crypt/transferences-modular/ach-configuration
                 transferences: /v1-crypt/transferences-modular
-                rates-apply-in-transference: /v1-crypt/transferences-modular/rate-to-apply
-                permissions-and-operations: /v1-crypt/permissions
-                loan-payments: /v1-crypt/payments/loan
-                credit-card-payments: /v1-crypt/payments/credit-card
-                providers-payments: /v1-crypt/payments/providers
-                payments: /v1-crypt/payments/services
-                contract-generator: /v1-crypt/documents/
-                last-movements: /v1-crypt/last-movements
-                onboarding: /v1-crypt/onboarding
-                catalogs: /v1-crypt/catalogs/
-                security-profile: /v1-crypt/security-profile
-                push-notifications-management: /v1-crypt/push
-                digital-account: /v1-crypt/digital-account
-                splitit-all: /v1-crypt/dividelo-todo
-                providers: /v1-crypt/multi-payments/
-                register-device: /v1-crypt/register-device
-                payment-favorites: /v1-crypt/favorites/payments
-                payment-categories: /v1-crypt/payments/categories
-                payment-services: /v1-crypt/payments/category
-                services-payments: /v1-crypt/payments/services
-                crm-management: /v1-crypt/crm
-                extra-financing: /v1-crypt/extra-financing
-              options-menu:
-                - code: accounts
-                  description: Cuentas
-                - code: transfers
-                  description: Transferencias
-                - code: payments
-                  description: Pagos
-                - code: online_managements
-                  description: Gestiones en línea
-                - code: admin
-                  description: Mantenimiento de cuentas
-                - code: contacts
-                  description: Contáctanos
-                - code: locations
-                  description: Ubicaciones
-                - code: exchanges
-                  description: Tipo de cambio
-                - code: external_links
-                  description: Solicitud de productos
-                - code: block
-                  description: Bloqueos
-                - code: configurations
-                  description: Configuraciones
-                - code: tutorial
-                  description: Tutorial
-                - code: create_user
-                  description: Activar/Crear mi usuario
-                - code: notifications
-                  description: Notificaciones
-              external-menu:
-                - create_user
-                - external_links
-                - exchanges
-                - locations
-                - contacts
-              internal-menu:
-                - accounts
-                - transfers
-                - payments
-                - online_managements
-                - admin
-                - contacts
-                - locations
-                - exchanges
-                - external_links
-                - notifications
-                - block
-                - configurations
-                - tutorial
-              features:
-                bubble-menu:
-                  properties:
-                    option1: Extra- financiamiento | https://www.banpais.hn/boletines/autobole/uploadedimages/bubblemenu | Extrafinanciamiento
-                    option2: Gestiones en línea | https://www.banpais.hn/boletines/autobole/uploadedimages/bubblemenu | Gestiones
-                onboarding:
-                  name: "Enrolamiento digital"
-                digital-account:
-                  name: "Cuenta digital"
-                  enabled: true
-                transferences:
-                  version: "365" 
-                credit-card: 
-                  name: "Tarjeta de credito BP"
-                  description: "Habilita"
-                  version: banpais #regional/dividelo-todo
-                payments: 
-                  version: simple # simple / multipagos
-                  name: "Habilita la versión simple de pagos"
-                ciber-security:
-                  version: complex
-                  name: "Ciber-Seguridad BIES"
-                  properties:
-                    application-timeout: 600
-                    message-timeout: 20
-                    policies-security-text: '["La contraseña debe ser alfanumérica","La nueva contraseña debe ser diferente a las utilizadas previamente hasta 12 ciclos","Al definir la contraseña considerar que la contraseña es sensible al uso de mayúsculas y minúsculas","No utilizar ninguno de los siguientes símbolos ~ <> ! / [] {} ; # y la letra ñ","No debe poseer datos personales como: Número de identificación, fecha de nacimiento, nombres, apellidos, número de teléfono, ni aspectos relacionados a Bi \"BANCO,INDUSTRIAL,BISV y BIES\" o sus combinaciones.","No se permite usar más de 3 caracteres iguales consecutivos numéricos o alfanuméricos","Para usuarios de personas jurídicas es inválido el uso de datos de identificación de la institución: nombre de la empresa comercial, razón social o números de teléfono de la empresa."]'
-                    policies-vigency-test: '["Período de inactivación por no ingreso al servicio: 45 días","Inactivación de usuario por ingreso de contraseña incorrecto: 3 intentos fallidos","Período para cambio de contraseña: Las que establezcas en tu perfil de seguridad puede ser de 45 a 60 días","Vigencia de contraseña temporal: 24 horas","Cierre de sesión por inactividad: 3 minutos"]'
-                    policies-remember-text: '["Que por tu seguridad después de 3 intentos tu usuario se desactivará y deberás solicitar una nueva contraseña a través de nuestras agencias","call center o WhatsApp"]'
-
-          -
-            name: "Versión v3 prueba"
-            supported-versions:
-            - 3.4.54
-            - 3.4.55
-            properties:
-              version: 3
-              environment: TEST
-              accent-color: #FFB800
-              language: es
-              locale: es_HN
-              country: HN
-              currency: HNL
-              application-timeout: 600
-              custom-properties:
-                prefix: "+504"
-                fpandroid: "ew0KICAgICJjdXN0b21lciI6ICJCYW5jbyBJbmR1c3RyaWFsIEhOIiwNCiAgICAiZG9jdW1lbnRUeXBlIjogIkxpY2Vuc2VFbnZlbG9wZSIsDQogICAgImxpY2Vuc2UiOiB7DQogICAgICAgICJjb21tZW50cyI6ICJQcm9kdWN0aW9uIiwNCiAgICAgICAgImRhdGVFbmQiOiAiMjAyMy0xMi0xOSIsDQogICAgICAgICJleHRyYURhdGEiOiAiM0Q0MzBGMEMzMzBEMDczNTA0MjcwQTMzMUQwNDIzMEYxNzQ3NkE0QTFBMTQxNjIyMjQxMTI5M0IyNzI2NTcxMDA5NUE1MDMyMkQwRTJGMjAyNDA0MEMwOTAxMEIxMjAwMDgxRTJDMDkwRjIwMzExMDI1MzczMjE0Mjk1QjA1MDkzMjU1MzY2OTJDMzgxRjAyMzM1NTIyNTA1RjI4Mzg1MTFEMTkxMDQyMTQyQTExMDAwNDVFMEYzMDJEMTkyNDMzM0Q1RDMyNTM0ODUwNjQxQjM4NjkxNjFBMDQxRjMyMjEwRDIyMUIzQzFDMUQxOTBBMkMxNjBCN0YyNTBBMzMwNjQ4MTMzQTM4M0MyMTE1MzIzQzNGMUEzQjEzMkMwMDA4MjczRjIyNzcxODBEMzMxNjJFMDUwMjE3MTYyOTIzNUQwMjI0MDMxNDIwMTExODNCMTMyQTU0MkExQzA5M0EwNzA2MEUyRDExNTAwQzFGMUI1NzE1MEEwOTFFMTczNTU2NUQwMDIwMkMxQzM4MTEzNTY1MzkyRjczNTgwQjI4MUYzRDE4N0UzQjNBNTUxNDE4M0YxMzJFMDIzNTA1MDYzQjJBMTQxNzU2MDIwMDJBMjMxQjNBM0QzOTE4MDIyMTBDMzIwMjIzM0UwQjBFMTA1MDM1MzUyMzIzMjMzNzIyMjEwNDVDNTkyQTRBMzQzNDIyMzEwQTcwMkIwQjA2MzI1MDUxMjkyNTM3MTIzRTJCMzAwMDE3MzYzNjdCMUUxRDI1MkYzMDI0MTUyMDUxN0UxMzUyMjYyODI0MDQyNDE2MTUyQjA5M0I1RjdGNTMyMTVEMzI1RTNCMDkyQzMyMTYxMzBGNUIwNDM0MTAyODA2NUYxQjdFMTgyRjI4MDk0NzJGNjQ0RDQxMDkzOTBCMEMyODEyMDYzMTNGMDMwQzI4MjUwQzA2MjUwNTBDMjgxNTQxNUY3MjEzMzUyODQxNDM0NTcwMzQ0QjI1MTQxMDExM0YwNTBDMzQzRDQxNUY3MDM0NEIwNDAwMEQwNjNGNDgyMDI4MDUxNjE2MjQxQTAwMjcwRDQzMkQxRTM0NEI2QTNEMEQ0NTcwNDg0OTFBNDMwNzBBMzMxRDA0MjMwRjE3MzEyOTE4MEMxQTQzNTk0NTBDNEEyNTJGMDIwNjBCMjMwRDJDMjgxNzA2MDkzRjE4MEMxQTQzNEYzOTNFNDg0OTY2NDEzRjQ3M0MwMTBBMjMwRjEwMDAwQzRBNTM2NjFBM0YwQjcwNDg0OTY2NDE0MzQ1NzAzNDRCMjUwRTBFMDgzNTA2MUQzNTNENDE1RjcwMzQ0QjE2MTMwQzAxMjUwQjFEMkYwRTBEMzk3MjQ0MzUyODQxNDM0NTcwNDg0OTY2NDEzRjQ3MzQwOTFEMjMyNDBEMDEwQzRBNTM2NjNENDE1NzYwNUE1QTZCNTA1MTQ4NjE1MTM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjJBMDgwMDAwM0UxQjBDMDIwRTAwMTAzRDBEMDczMjNENDE1RjcwMzQ0QjM1MzMxNDI0MTEyOTI4MTQwMDI0NTEyNTMxNUI3RjE1MkYwODFBMTgyNTJCMkIwQjA3M0UyQTAxMjczOTJFMEYzQTE4MzAzRjAyMzUzNDIxMTE1QTJBMkUzMDUzMDM1MTJEMTczODAwMzU2MDFBNTE3MDBGM0E1NzI4MjExMTZEMzMyODE3MzUzQzVGMjAxNzJGMUYxMTBCM0M3MjE1NTE0RTY1NUMxQTE3NEUxNDFDMzEyNzMzMEUyQTIwMUQwOTI0MUMzNjJEMkUxMDNFNDcyNDI1MTQwNDRFMjYwMjM5MTMwNjE3MzQwOTA3MUIxNDM0MkUwNjNEMUYzRTBENTAxQTBCMDYyRTJGMkEyNTE1MTAxQzFCNUMyRDAzMDExMjE1MjkxOTE0MzQyODUyMUYyNDA4MTUyMDA0MDgxODI5NTEyMzM4MTk1MTIwMzIwODMxMzAzNzUwNjgzODIxMDMzQjNBMTcwMDVEMzgwMDU0NUEwRDFEMjczQzM3NTkzOTNDNjAyQzE5MTAzNDJDMDQwMDNEMDcxNDBEMTYxMTYzM0EwMTA1MDQxOTNDMDgwMTE5MkQwNjBFMzQzNzFCM0YyNDI5MTI1NjAwMEQyMjBDMDQzNTI0MTQzQzVENzYwRDQ4MzIwMTFBMzAyNTU3MjkwRDMzMEE1MTdFMEUyNzMxMjcwNjJBMUYyNzE1MzAwMzQzMUYzMjAyMkQzNjExMkQyMTdFNTkxMTU0MTMxMDI1MkIwMzE0MTMxRTMxM0E3MDU4NTEyNzY4MEE1RjE0MkUyRTM0MjMyQjBFNzQyMzM2MTYxRDNFNUUzNDU5MUEyOTFEMzE0NjAwM0Q0MTQ5MEMwNjQ5NjY0MTQzNDU3MDQ4NDkxQTQzMEYwQzMzMEQwNzM1MDQzNzBBM0IwRDA3MEYwQzAyMDIzNTM0NEI3QzQxMTcxNzI1MEQ0NTFBMEY0MzQ1NzA0ODQ5NjY0MTQzMzk3MjA3MUExQTQzNTk0NTBDNEEyODI4MDUxMTBBMzkwQzM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjM2MDAwMDBFMzEwRjBDMDgwMDBFMDAwQzRBNTM2NjNENDEwRDNFNDYwQTI5MEM0RDA3Mzk0NjBCMjcwRjEzMDQzOTFCMzU2NDREM0YwQjcwNDg0OTY2NDE0MzQ1NzAzNDRCMzYxMzBDMDEyNTBCMUQxQTQzNTk0NTBDNEEzQTIzMEQxMzBEMTkyQzM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjMwMDQxMTE2MzkwNzA3MUE0MzU5NDUwQzRBNTg2ODUxM0Y0NzBDMDY0OTY2NDE0MzE4N0MzNDA3NjY0MTQzNDUwQzRBMTkzNDBFMTUwQzM0MEQxQjFBNDM1OTQ1MEM0QTJGMjcwMjA2MzUzODAxMzU2NDNEMEQxODcyNDQ0QjJBMEUwNDAyMzkwNjBFNjQ1QjA1MDQzQzFCMEMzQiIsDQogICAgICAgICJsaWNlbnNlRG9jdW1lbnQiOiB0cnVlLA0KICAgICAgICAibGljZW5zZUZhY2lhbCI6IGZhbHNlLA0KICAgICAgICAibGljZW5zZVRva2VuRG9jdW1lbnQiOiB0cnVlLA0KICAgICAgICAibG9nZ2luZyI6IGZhbHNlLA0KICAgICAgICAib3MiOiAiQW5kcm9pZCIsDQogICAgICAgICJwYWNrYWdlTmFtZSI6ICJobi5jb20uYmkuYmFucGFpcyIsDQogICAgICAgICJwcm9kdWN0IjogIlNlbHBoSUQiLA0KICAgICAgICAidmVyc2lvbiI6ICIxLjAiDQogICAgfSwNCiAgICAicHJvdmlkZXIiOiAiRmFjZVBoaSINCn0"
-                fpios: "ew0KICAgICJjdXN0b21lciI6ICJCYW5jbyBJbmR1c3RyaWFsIEhOIiwNCiAgICAiZG9jdW1lbnRUeXBlIjogIkxpY2Vuc2VFbnZlbG9wZSIsDQogICAgImxpY2Vuc2UiOiB7DQogICAgICAgICJjb21tZW50cyI6ICJQcm9kdWN0aW9uIiwNCiAgICAgICAgImRhdGVFbmQiOiAiMjAyMy0xMi0xOSIsDQogICAgICAgICJleHRyYURhdGEiOiAiM0Q0MzBGMEMzMzBEMDczNTA0MjcwQTMzMUQwNDIzMEYxNzQ3NkE0QTFBMTQxNjIyMjQxMTJEM0MxRjUzNUExMTFDMDUyMzJFMDMwRDI3MzgwOTMxMEIxNDAxMzIxQTAwMEIyQjE1MTMwNzNEMEMwRTBCMDM1MDU3MzYxQjEzMzExMzA5NEUyOTA1MTkxNzE1MzAwODI4MjMxMDE2MDYyMTI0MUU1RTU4MTMwMzA2MDgxQjFDMDg3MTU1MEI1MDM1NUY1OTc3MjIyRTEyMDY1QTI0MUM1NTVCNTIyNTFEMkQzMzA0NTMzMzNGMEUxMzA5MEM0ODJGMzk1RDI4MzAwMjQ4MzQxOTJDMDgzRjA5MEY1MjNDM0I0NjZEMkUzNTE3M0MyRDNBMDQyODM2MDY2NDNEMjgyQzU1MzYyMDA1MEUwMDAyMDI0ODAzMzU1QzVEMDcxODI5MkMzMTAwMjExMDAyMTcxMzMxMEQyRTAyMTg1NTFDM0MxMTNCNzcyRDU3MjIxNDAzMzk3RjAwMTExMTNCMUEzRTEzMTY1MzJFMTYyNjI1MDgyRjVBMUQ2OTNCMjIxRTU2NUIwNDMxMjk0MjdGMDczNTM1MUMzQzJGMDc1MDE5MDgzRTE5M0QzQzU5MEMyRDNBMEQxQzBBMEM0QzAxMUI0NzAyNzMyNDNBMzIzNDJGMkYwMzU4MDkxMTEyM0QzODAwNTUwMTAwNjAyRDNEMEYzNDA0MzQ2ODFCMDAyRTMxNTMwMDYwMjcwMTBCMTkzNjA2MzUyOTIwNzYyMDJGMUYyMDNFMDIzMzI1MkIyRTMzMkQ1RDAxMkE1NzBBMzY1RTVEMEEyNDMzMDMzMzA3MEEwMjMwMzQwMDAzMUIxODMzMjMzNDUwMjczMjJFMEQ0RTUxMjYwNTA2MDQwMTQzNEY0NzNDMDEwQTIzMEYxMDAwMDQwNzAyMjMwRjI3MEEzMzFEMDQyMzBGMTc0NzZBNEExMjFBMEY0MzQ1NzA0ODM1NjQwMjE2MTYyNDA3MDQyMzEzM0Y0NzZBNDgzNTY0MjMwMjBCMzMwNzQ5MEYwRjA3MTAyMzFDMUIyRjAwMEY0NTE4MjYzNTY0NEQzRjBCNzA0ODQ5NjYzRDQxMDEzRjBCMUMyQjA0MEQxMTA0MTExOTIzM0Q0MTVGNzAzNDRCMEEwODAwMDAzRTFCMEMwMzBGMTUwMDNDMDcxOTIzM0Q0MTQ5MEMwNjQ5NjY0MTQzMzk3MjA0MDAyNTA0MEQxNjM1MzQ0QjdDNDExODM5M0U0ODQ5NjY0MTQzNDU3MDQ4MzU2NDAyMEMwODNEMEQwNzMyMTIzRjQ3NkE0ODM1NjQzMTExMEEzNDFEMEEzMjA4MEMwQjBDNEE0NTFBMEY0MzQ1NzA0ODQ5NjY0MTQzMzk3MjBDMDgzMjA0MjYwQjM0MzQ0QjdDNDEzRjQ3NjI1ODVCNzU0QzUyNTc3RDU5NTAxQTQzNEYzOTNFNDg0OTY2NDE0MzQ1NzA0ODM1NjQwRDBBMDYzNTA2MUEyMzI1MEMwNjI1MDUwQzI4MTUzRjQ3NkE0ODM1NjQxMjMxMTIxMTI5MjgwMzM0M0E1NzY5MUMyNTJCMkIwQjA3M0UyQTAxMjczOTJFMTAzMjNGMjMyRTAzMEUxMTIwMEEwNDIyMDYyRTA3NjM1QTBGMzUxQjE0MTczQTQzMTAyQjExMzIxMTAzMDUxMTBEMTgzMzAyMTIyOTI3NzA1MDM2MDczNTA1MjIzMjAwNTQ1MTM4NUQwQzcxNTE1MjI2MUQxRjNGNzQyQzM5NTE2ODVGMUMzMzI1MTYwMDYwM0UwNjIwMUIyQzA4N0IyMjAwNzMyMDE1MDY3QjM5MjAwMjAwMUEwRDNDNUYwNTE1NEU0ODJBMDYxQTA1MDMzMjIxMkMwNTBCNUQxMzIwMDk1MTA1MkQzQzIwMDgyNzA2N0IwRTBDNzI1NTIyMUMxQTIxMDgyRTI5MzUwNjI0MUUwODIzMjYyNzFDNjYxMTA1M0YzMzUyMjk2NDJGMkQyRDMxNUEwNDIyMUMwMjM0MzYzNjEyNjAyMzJGMDgyRDJEMkI2OTEwNTAxNTJBM0I1MjY4MDkwODA3NEE1QTAzMDYzODI1MTIyNzIyNTQyQTA1MDczNzM1MTk1RDNGMjAwMzIzMTQyRjA4N0YwQzIyNjkwQTU2MjAwOTNGMEQwMTI3MjY1QzNBMUMyQjEzMzAyNTUxMzIwRDU5MDMzNTJBMzAzNzM5NTEzNTA4MEIzNTYwMEQ1OTA5MDkyRTFEMDUwQjBDMDcyODUzMjQxQzEyMTkxMDBBMTYyMTE4MjMwQTAzNTUyNDJFNjQwNzBGNzA1NTJGMjAwMDBFMEEyOTAyMjczNDA3MEQzQTM1MTAxNjI3MDc1RDFFMUMyNjI4NEE2MjJCM0MyODBDMjQzOTcyNDQzNTI4NDE0MzQ1NzA0ODQ5NjY0MTNGNDczQzAxMEEyMzBGMTAwMDA0MDcwMjIzMEYyQTA4MzEwRjBDMUE0MzU5NDUzNjA5MDUzNTA0NEYzOTNFNDg0OTY2NDE0MzQ1NzA0ODM1NjQwRTEwMzk3MjUyNDkxQTQzMEEyQTAzMzQ0QjZBM0QwRDQ1NzA0ODQ5NjY0MTQzNDUwQzRBMTkyNzAyMDgwNDM3MEQyNzI3MEMwNjM5NzI1MjQ5MUE0MzAwMEEzRDQ2MEIyNzBGMTMwNDM5MUI0NzJCMDMwMjBCM0IwMTA3MjEzRDQxNDkwQzA2NDk2NjQxNDM0NTcwNDg0OTFBNDMxMzE3M0YwQzFDMjUxNTNGNDc2QTQ4MzU2NDMyMDYwOTIwMDAyMDAyM0Q0MTQ5MEMwNjQ5NjY0MTQzNDU3MDQ4NDkxQTQzMTUwMDIyMUIwMDI5MEYzRjQ3NkE0ODM1NjQ1MDRENTUwQzRBMzUyODQxNDM0NTcwMTU0NTFBMEY0MzQ1NzA0ODM1NjQxMTExMEEyNjAxMEQyMzEzM0Y0NzZBNDgzNTY0MjcwMjA2MzUzODAxMkYzRDQxMzkzRTE1NEI2QTQzMEYwQTM3MEYwMDI4MDY0MTVGMzYwOTA1MzUwNDFFIiwNCiAgICAgICAgImxpY2Vuc2VEb2N1bWVudCI6IHRydWUsDQogICAgICAgICJsaWNlbnNlRmFjaWFsIjogZmFsc2UsDQogICAgICAgICJsaWNlbnNlVG9rZW5Eb2N1bWVudCI6IHRydWUsDQogICAgICAgICJsb2dnaW5nIjogZmFsc2UsDQogICAgICAgICJvcyI6ICJpT1MiLA0KICAgICAgICAicGFja2FnZU5hbWUiOiAiY29tLmJhbnBhaXMubWJhbmtpbmciLA0KICAgICAgICAicHJvZHVjdCI6ICJTZWxwaElEIiwNCiAgICAgICAgInZlcnNpb24iOiAiMS4wIg0KICAgIH0sDQogICAgInByb3ZpZGVyIjogIkZhY2VQaGkiDQp9"
-                ACH_NAME_REGEXP: ^([a-zA-Z0-9]{1,}\s[a-zA-Z0-9]{3,}|[a-zA-Z0-9]{2,}\s[a-zA-Z0-9]{2,}|[a-zA-Z0-9]{3,}\s[a-zA-Z0-9]{1,})(\s[a-zA-Z0-9]{1,})*\s*$
-                ACH_NAME_REGEXP_V2: ^([a-zA-Z0-9]{1,}\s[a-zA-Z0-9]{3,}|[a-zA-Z0-9]{2,}\s[a-zA-Z0-9]{2,}|[a-zA-Z0-9]{3,}\s[a-zA-Z0-9]{1,})(\s[a-zA-Z0-9]{1,})*\s*$
-                valid-characters: "~!/<>[]{};*#ñÑ"
-                contract-e2-id: contract01
-                commission_ACH: "Q29taXNpw7NuIHBvciBlbnbDrW8gdHJhbnNmZXJlbmNpYSBBQ0ggTC40MC4wMA=="
-                welcomMessage: RXN0aW1hZG8gY2xpZW50ZXzCoUFob3JhIHB1ZWRlcyByZWFsaXphciB0dXMgZ2VzdGlvbmVzIGEgdHJhdsOpcyBkZSBCUCBlbiBMw61uZWEh
-                multipayment-url-icon: https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/
-                Multipayment: true
-                enableDigitalBankAccount: true
-                enableSplitItAll: true
-                MultipaymentRegisterDueDays: 3d
-              contacts-info:
-                whatsapp: +50425451212
-                email: asuservicio@banpais.hn
-                phone: +50425451212
-                email-subject: "Soporte Banpaís"
-              endpoints:
-                interest-sites: /v3/settings/sites
-                statements: /v3/statements/
-                resumes: /v3/resumes/
-                login: /v3/oauth/
-                logout: /v3/oauth/revoke
-                token: /v3/tokens/
-                accounts-and-permissions: /v3/accounts/
-                app-customization: /v3/settings
-                facephi: /v3/facephi/
-                rates: /v3/settings/rates
-                places: /v3/settings/locations
-                favorites: /v3/favorites/
-                favorites-owns: /v3/favorites/owns
-                favorites-thirdparties: /v3/favorites/thirdparties
-                favorites-payments: /v3/payments/favorites
-                reset-password: /v3/reset-password/
-                set-password: /v3/set-password/
-                thirdparties: /v3/thirdparties
-                ach-accounts: /v3/ach
-                ach-configuration: /v3/transferences/ach-configuration
-                transferences: /v3/transferences
-                rates-apply-in-transference: /v3/transferences/rate-to-apply
-                permissions-and-operations: /v3/permissions
-                loan-payments: /v3/payments/loan
-                credit-card-payments: /v3/payments/credit-card
-                providers-payments: /v3/payments/providers
-                contract-generator: /v3/documents/
-                last-movements: /v3/last-movements
-                onboarding: /v3/onboarding
-                catalogs: /v3/catalogs/
-                security-profile: /v3/security-profile
-                push-notifications-management: /v3/push
-                digital-account: /v3/digital-account
-                payment-favorites: /v3/favorites/payments
-                payment-categories: /v3/payments/categories
-                payment-services: /v3/payments/category
-                services-payments: /v3/payments/services
-                payments: /v3/payments/services
-                dividelo-todo: /v3/dividelo-todo
-                splitit-all: /v3/dividelo-todo
-                providers: /v3/multi-payments/
-                register-device: /v3/register-device
-                crm-management: /v3/crm
-
-              options-menu:
-                - code: accounts
-                  description: Cuentas
-                - code: transfers
-                  description: Transferencias
-                - code: payments
-                  description: Pagos
-                - code: online_managements
-                  description: Gestiones en línea
-                - code: admin
-                  description: Mantenimiento de cuentas
-                - code: contacts
-                  description: Contáctanos
-                - code: locations
-                  description: Ubicaciones
-                - code: exchanges
-                  description: Tipo de cambio
-                - code: external_links
-                  description: Solicitud de productos
-                - code: block
-                  description: Bloqueos
-                - code: configurations
-                  description: Configuraciones
-                - code: tutorial
-                  description: Tutorial
-                - code: create_user
-                  description: Activar/Crear mi usuario
-                - code: notifications
-                  description: Notificaciones
-
-              external-menu:
-                - create_user
-                - external_links
-                - exchanges
-                - locations
-                - contacts
-              internal-menu:
-                - accounts
-                - transfers
-                - payments
-                - online_managements
-                - admin
-                - contacts
-                - locations
-                - exchanges
-                - external_links
-                - notifications
-                - block
-                - configurations
-                - tutorial
-               
-              features:
-                onboarding:
-                  name: "Enrolamiento digital"
-                digital-account:
-                  name: "Cuenta digital"
-                  enabled: true
-                transferences:
-                  version: "365" 
-                credit-card: 
-                  name: "Tarjeta de credito BP"
-                  description: "Habilita"
-                  version: banpais #regional/dividelo-todo
-                payments: 
-                  version: simple # simple / multipagos
-                  name: "Habilita la versión simple de pagos"
-                ciber-security:
-                  version: complex
-                  name: "Ciber-Seguridad BIES"
-                  properties:
-                    application-timeout: 600
-                    message-timeout: 20
-                    policies-security-text: '["La contraseña debe ser alfanumérica","La nueva contraseña debe ser diferente a las utilizadas previamente hasta 12 ciclos","Al definir la contraseña considerar que la contraseña es sensible al uso de mayúsculas y minúsculas","No utilizar ninguno de los siguientes símbolos ~ <> ! / [] {} ; # y la letra ñ","No debe poseer datos personales como: Número de identificación, fecha de nacimiento, nombres, apellidos, número de teléfono, ni aspectos relacionados a Bi \"BANCO,INDUSTRIAL,BISV y BIES\" o sus combinaciones.","No se permite usar más de 3 caracteres iguales consecutivos numéricos o alfanuméricos","Para usuarios de personas jurídicas es inválido el uso de datos de identificación de la institución: nombre de la empresa comercial, razón social o números de teléfono de la empresa."]'
-                    policies-vigency-test: '["Período de inactivación por no ingreso al servicio: 45 días","Inactivación de usuario por ingreso de contraseña incorrecto: 3 intentos fallidos","Período para cambio de contraseña: Las que establezcas en tu perfil de seguridad puede ser de 45 a 60 días","Vigencia de contraseña temporal: 24 horas","Cierre de sesión por inactividad: 3 minutos"]'
-                    policies-remember-text: '["Que por tu seguridad después de 3 intentos tu usuario se desactivará y deberás solicitar una nueva contraseña a través de nuestras agencias, call center o WhatsApp"]'
-          -
-            name: "Modular transfer"
-            supported-versions:
-            - 3.6.80
-            - 3.6.81
-            properties:
-              version: 4
-              environment: TEST
-              accent-color: #FFB800
-              language: es
-              locale: es_HN
-              country: HN
-              currency: HNL
-              application-timeout: 600
-              custom-properties:
-                username_length: 25
-                prefix: "+504"
-                fpandroid: "ew0KICAgICJjdXN0b21lciI6ICJCYW5jbyBJbmR1c3RyaWFsIEhOIiwNCiAgICAiZG9jdW1lbnRUeXBlIjogIkxpY2Vuc2VFbnZlbG9wZSIsDQogICAgImxpY2Vuc2UiOiB7DQogICAgICAgICJjb21tZW50cyI6ICJQcm9kdWN0aW9uIiwNCiAgICAgICAgImRhdGVFbmQiOiAiMjAyMy0xMi0xOSIsDQogICAgICAgICJleHRyYURhdGEiOiAiM0Q0MzBGMEMzMzBEMDczNTA0MjcwQTMzMUQwNDIzMEYxNzQ3NkE0QTFBMTQxNjIyMjQxMTI5M0IyNzI2NTcxMDA5NUE1MDMyMkQwRTJGMjAyNDA0MEMwOTAxMEIxMjAwMDgxRTJDMDkwRjIwMzExMDI1MzczMjE0Mjk1QjA1MDkzMjU1MzY2OTJDMzgxRjAyMzM1NTIyNTA1RjI4Mzg1MTFEMTkxMDQyMTQyQTExMDAwNDVFMEYzMDJEMTkyNDMzM0Q1RDMyNTM0ODUwNjQxQjM4NjkxNjFBMDQxRjMyMjEwRDIyMUIzQzFDMUQxOTBBMkMxNjBCN0YyNTBBMzMwNjQ4MTMzQTM4M0MyMTE1MzIzQzNGMUEzQjEzMkMwMDA4MjczRjIyNzcxODBEMzMxNjJFMDUwMjE3MTYyOTIzNUQwMjI0MDMxNDIwMTExODNCMTMyQTU0MkExQzA5M0EwNzA2MEUyRDExNTAwQzFGMUI1NzE1MEEwOTFFMTczNTU2NUQwMDIwMkMxQzM4MTEzNTY1MzkyRjczNTgwQjI4MUYzRDE4N0UzQjNBNTUxNDE4M0YxMzJFMDIzNTA1MDYzQjJBMTQxNzU2MDIwMDJBMjMxQjNBM0QzOTE4MDIyMTBDMzIwMjIzM0UwQjBFMTA1MDM1MzUyMzIzMjMzNzIyMjEwNDVDNTkyQTRBMzQzNDIyMzEwQTcwMkIwQjA2MzI1MDUxMjkyNTM3MTIzRTJCMzAwMDE3MzYzNjdCMUUxRDI1MkYzMDI0MTUyMDUxN0UxMzUyMjYyODI0MDQyNDE2MTUyQjA5M0I1RjdGNTMyMTVEMzI1RTNCMDkyQzMyMTYxMzBGNUIwNDM0MTAyODA2NUYxQjdFMTgyRjI4MDk0NzJGNjQ0RDQxMDkzOTBCMEMyODEyMDYzMTNGMDMwQzI4MjUwQzA2MjUwNTBDMjgxNTQxNUY3MjEzMzUyODQxNDM0NTcwMzQ0QjI1MTQxMDExM0YwNTBDMzQzRDQxNUY3MDM0NEIwNDAwMEQwNjNGNDgyMDI4MDUxNjE2MjQxQTAwMjcwRDQzMkQxRTM0NEI2QTNEMEQ0NTcwNDg0OTFBNDMwNzBBMzMxRDA0MjMwRjE3MzEyOTE4MEMxQTQzNTk0NTBDNEEyNTJGMDIwNjBCMjMwRDJDMjgxNzA2MDkzRjE4MEMxQTQzNEYzOTNFNDg0OTY2NDEzRjQ3M0MwMTBBMjMwRjEwMDAwQzRBNTM2NjFBM0YwQjcwNDg0OTY2NDE0MzQ1NzAzNDRCMjUwRTBFMDgzNTA2MUQzNTNENDE1RjcwMzQ0QjE2MTMwQzAxMjUwQjFEMkYwRTBEMzk3MjQ0MzUyODQxNDM0NTcwNDg0OTY2NDEzRjQ3MzQwOTFEMjMyNDBEMDEwQzRBNTM2NjNENDE1NzYwNUE1QTZCNTA1MTQ4NjE1MTM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjJBMDgwMDAwM0UxQjBDMDIwRTAwMTAzRDBEMDczMjNENDE1RjcwMzQ0QjM1MzMxNDI0MTEyOTI4MTQwMDI0NTEyNTMxNUI3RjE1MkYwODFBMTgyNTJCMkIwQjA3M0UyQTAxMjczOTJFMEYzQTE4MzAzRjAyMzUzNDIxMTE1QTJBMkUzMDUzMDM1MTJEMTczODAwMzU2MDFBNTE3MDBGM0E1NzI4MjExMTZEMzMyODE3MzUzQzVGMjAxNzJGMUYxMTBCM0M3MjE1NTE0RTY1NUMxQTE3NEUxNDFDMzEyNzMzMEUyQTIwMUQwOTI0MUMzNjJEMkUxMDNFNDcyNDI1MTQwNDRFMjYwMjM5MTMwNjE3MzQwOTA3MUIxNDM0MkUwNjNEMUYzRTBENTAxQTBCMDYyRTJGMkEyNTE1MTAxQzFCNUMyRDAzMDExMjE1MjkxOTE0MzQyODUyMUYyNDA4MTUyMDA0MDgxODI5NTEyMzM4MTk1MTIwMzIwODMxMzAzNzUwNjgzODIxMDMzQjNBMTcwMDVEMzgwMDU0NUEwRDFEMjczQzM3NTkzOTNDNjAyQzE5MTAzNDJDMDQwMDNEMDcxNDBEMTYxMTYzM0EwMTA1MDQxOTNDMDgwMTE5MkQwNjBFMzQzNzFCM0YyNDI5MTI1NjAwMEQyMjBDMDQzNTI0MTQzQzVENzYwRDQ4MzIwMTFBMzAyNTU3MjkwRDMzMEE1MTdFMEUyNzMxMjcwNjJBMUYyNzE1MzAwMzQzMUYzMjAyMkQzNjExMkQyMTdFNTkxMTU0MTMxMDI1MkIwMzE0MTMxRTMxM0E3MDU4NTEyNzY4MEE1RjE0MkUyRTM0MjMyQjBFNzQyMzM2MTYxRDNFNUUzNDU5MUEyOTFEMzE0NjAwM0Q0MTQ5MEMwNjQ5NjY0MTQzNDU3MDQ4NDkxQTQzMEYwQzMzMEQwNzM1MDQzNzBBM0IwRDA3MEYwQzAyMDIzNTM0NEI3QzQxMTcxNzI1MEQ0NTFBMEY0MzQ1NzA0ODQ5NjY0MTQzMzk3MjA3MUExQTQzNTk0NTBDNEEyODI4MDUxMTBBMzkwQzM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjM2MDAwMDBFMzEwRjBDMDgwMDBFMDAwQzRBNTM2NjNENDEwRDNFNDYwQTI5MEM0RDA3Mzk0NjBCMjcwRjEzMDQzOTFCMzU2NDREM0YwQjcwNDg0OTY2NDE0MzQ1NzAzNDRCMzYxMzBDMDEyNTBCMUQxQTQzNTk0NTBDNEEzQTIzMEQxMzBEMTkyQzM1NjQ0RDNGMEI3MDQ4NDk2NjQxNDM0NTcwMzQ0QjMwMDQxMTE2MzkwNzA3MUE0MzU5NDUwQzRBNTg2ODUxM0Y0NzBDMDY0OTY2NDE0MzE4N0MzNDA3NjY0MTQzNDUwQzRBMTkzNDBFMTUwQzM0MEQxQjFBNDM1OTQ1MEM0QTJGMjcwMjA2MzUzODAxMzU2NDNEMEQxODcyNDQ0QjJBMEUwNDAyMzkwNjBFNjQ1QjA1MDQzQzFCMEMzQiIsDQogICAgICAgICJsaWNlbnNlRG9jdW1lbnQiOiB0cnVlLA0KICAgICAgICAibGljZW5zZUZhY2lhbCI6IGZhbHNlLA0KICAgICAgICAibGljZW5zZVRva2VuRG9jdW1lbnQiOiB0cnVlLA0KICAgICAgICAibG9nZ2luZyI6IGZhbHNlLA0KICAgICAgICAib3MiOiAiQW5kcm9pZCIsDQogICAgICAgICJwYWNrYWdlTmFtZSI6ICJobi5jb20uYmkuYmFucGFpcyIsDQogICAgICAgICJwcm9kdWN0IjogIlNlbHBoSUQiLA0KICAgICAgICAidmVyc2lvbiI6ICIxLjAiDQogICAgfSwNCiAgICAicHJvdmlkZXIiOiAiRmFjZVBoaSINCn0"
-                fpios: "ew0KICAgICJjdXN0b21lciI6ICJCYW5jbyBJbmR1c3RyaWFsIEhOIiwNCiAgICAiZG9jdW1lbnRUeXBlIjogIkxpY2Vuc2VFbnZlbG9wZSIsDQogICAgImxpY2Vuc2UiOiB7DQogICAgICAgICJjb21tZW50cyI6ICJQcm9kdWN0aW9uIiwNCiAgICAgICAgImRhdGVFbmQiOiAiMjAyMy0xMi0xOSIsDQogICAgICAgICJleHRyYURhdGEiOiAiM0Q0MzBGMEMzMzBEMDczNTA0MjcwQTMzMUQwNDIzMEYxNzQ3NkE0QTFBMTQxNjIyMjQxMTJEM0MxRjUzNUExMTFDMDUyMzJFMDMwRDI3MzgwOTMxMEIxNDAxMzIxQTAwMEIyQjE1MTMwNzNEMEMwRTBCMDM1MDU3MzYxQjEzMzExMzA5NEUyOTA1MTkxNzE1MzAwODI4MjMxMDE2MDYyMTI0MUU1RTU4MTMwMzA2MDgxQjFDMDg3MTU1MEI1MDM1NUY1OTc3MjIyRTEyMDY1QTI0MUM1NTVCNTIyNTFEMkQzMzA0NTMzMzNGMEUxMzA5MEM0ODJGMzk1RDI4MzAwMjQ4MzQxOTJDMDgzRjA5MEY1MjNDM0I0NjZEMkUzNTE3M0MyRDNBMDQyODM2MDY2NDNEMjgyQzU1MzYyMDA1MEUwMDAyMDI0ODAzMzU1QzVEMDcxODI5MkMzMTAwMjExMDAyMTcxMzMxMEQyRTAyMTg1NTFDM0MxMTNCNzcyRDU3MjIxNDAzMzk3RjAwMTExMTNCMUEzRTEzMTY1MzJFMTYyNjI1MDgyRjVBMUQ2OTNCMjIxRTU2NUIwNDMxMjk0MjdGMDczNTM1MUMzQzJGMDc1MDE5MDgzRTE5M0QzQzU5MEMyRDNBMEQxQzBBMEM0QzAxMUI0NzAyNzMyNDNBMzIzNDJGMkYwMzU4MDkxMTEyM0QzODAwNTUwMTAwNjAyRDNEMEYzNDA0MzQ2ODFCMDAyRTMxNTMwMDYwMjcwMTBCMTkzNjA2MzUyOTIwNzYyMDJGMUYyMDNFMDIzMzI1MkIyRTMzMkQ1RDAxMkE1NzBBMzY1RTVEMEEyNDMzMDMzMzA3MEEwMjMwMzQwMDAzMUIxODMzMjMzNDUwMjczMjJFMEQ0RTUxMjYwNTA2MDQwMTQzNEY0NzNDMDEwQTIzMEYxMDAwMDQwNzAyMjMwRjI3MEEzMzFEMDQyMzBGMTc0NzZBNEExMjFBMEY0MzQ1NzA0ODM1NjQwMjE2MTYyNDA3MDQyMzEzM0Y0NzZBNDgzNTY0MjMwMjBCMzMwNzQ5MEYwRjA3MTAyMzFDMUIyRjAwMEY0NTE4MjYzNTY0NEQzRjBCNzA0ODQ5NjYzRDQxMDEzRjBCMUMyQjA0MEQxMTA0MTExOTIzM0Q0MTVGNzAzNDRCMEEwODAwMDAzRTFCMEMwMzBGMTUwMDNDMDcxOTIzM0Q0MTQ5MEMwNjQ5NjY0MTQzMzk3MjA0MDAyNTA0MEQxNjM1MzQ0QjdDNDExODM5M0U0ODQ5NjY0MTQzNDU3MDQ4MzU2NDAyMEMwODNEMEQwNzMyMTIzRjQ3NkE0ODM1NjQzMTExMEEzNDFEMEEzMjA4MEMwQjBDNEE0NTFBMEY0MzQ1NzA0ODQ5NjY0MTQzMzk3MjBDMDgzMjA0MjYwQjM0MzQ0QjdDNDEzRjQ3NjI1ODVCNzU0QzUyNTc3RDU5NTAxQTQzNEYzOTNFNDg0OTY2NDE0MzQ1NzA0ODM1NjQwRDBBMDYzNTA2MUEyMzI1MEMwNjI1MDUwQzI4MTUzRjQ3NkE0ODM1NjQxMjMxMTIxMTI5MjgwMzM0M0E1NzY5MUMyNTJCMkIwQjA3M0UyQTAxMjczOTJFMTAzMjNGMjMyRTAzMEUxMTIwMEEwNDIyMDYyRTA3NjM1QTBGMzUxQjE0MTczQTQzMTAyQjExMzIxMTAzMDUxMTBEMTgzMzAyMTIyOTI3NzA1MDM2MDczNTA1MjIzMjAwNTQ1MTM4NUQwQzcxNTE1MjI2MUQxRjNGNzQyQzM5NTE2ODVGMUMzMzI1MTYwMDYwM0UwNjIwMUIyQzA4N0IyMjAwNzMyMDE1MDY3QjM5MjAwMjAwMUEwRDNDNUYwNTE1NEU0ODJBMDYxQTA1MDMzMjIxMkMwNTBCNUQxMzIwMDk1MTA1MkQzQzIwMDgyNzA2N0IwRTBDNzI1NTIyMUMxQTIxMDgyRTI5MzUwNjI0MUUwODIzMjYyNzFDNjYxMTA1M0YzMzUyMjk2NDJGMkQyRDMxNUEwNDIyMUMwMjM0MzYzNjEyNjAyMzJGMDgyRDJEMkI2OTEwNTAxNTJBM0I1MjY4MDkwODA3NEE1QTAzMDYzODI1MTIyNzIyNTQyQTA1MDczNzM1MTk1RDNGMjAwMzIzMTQyRjA4N0YwQzIyNjkwQTU2MjAwOTNGMEQwMTI3MjY1QzNBMUMyQjEzMzAyNTUxMzIwRDU5MDMzNTJBMzAzNzM5NTEzNTA4MEIzNTYwMEQ1OTA5MDkyRTFEMDUwQjBDMDcyODUzMjQxQzEyMTkxMDBBMTYyMTE4MjMwQTAzNTUyNDJFNjQwNzBGNzA1NTJGMjAwMDBFMEEyOTAyMjczNDA3MEQzQTM1MTAxNjI3MDc1RDFFMUMyNjI4NEE2MjJCM0MyODBDMjQzOTcyNDQzNTI4NDE0MzQ1NzA0ODQ5NjY0MTNGNDczQzAxMEEyMzBGMTAwMDA0MDcwMjIzMEYyQTA4MzEwRjBDMUE0MzU5NDUzNjA5MDUzNTA0NEYzOTNFNDg0OTY2NDE0MzQ1NzA0ODM1NjQwRTEwMzk3MjUyNDkxQTQzMEEyQTAzMzQ0QjZBM0QwRDQ1NzA0ODQ5NjY0MTQzNDUwQzRBMTkyNzAyMDgwNDM3MEQyNzI3MEMwNjM5NzI1MjQ5MUE0MzAwMEEzRDQ2MEIyNzBGMTMwNDM5MUI0NzJCMDMwMjBCM0IwMTA3MjEzRDQxNDkwQzA2NDk2NjQxNDM0NTcwNDg0OTFBNDMxMzE3M0YwQzFDMjUxNTNGNDc2QTQ4MzU2NDMyMDYwOTIwMDAyMDAyM0Q0MTQ5MEMwNjQ5NjY0MTQzNDU3MDQ4NDkxQTQzMTUwMDIyMUIwMDI5MEYzRjQ3NkE0ODM1NjQ1MDRENTUwQzRBMzUyODQxNDM0NTcwMTU0NTFBMEY0MzQ1NzA0ODM1NjQxMTExMEEyNjAxMEQyMzEzM0Y0NzZBNDgzNTY0MjcwMjA2MzUzODAxMkYzRDQxMzkzRTE1NEI2QTQzMEYwQTM3MEYwMDI4MDY0MTVGMzYwOTA1MzUwNDFFIiwNCiAgICAgICAgImxpY2Vuc2VEb2N1bWVudCI6IHRydWUsDQogICAgICAgICJsaWNlbnNlRmFjaWFsIjogZmFsc2UsDQogICAgICAgICJsaWNlbnNlVG9rZW5Eb2N1bWVudCI6IHRydWUsDQogICAgICAgICJsb2dnaW5nIjogZmFsc2UsDQogICAgICAgICJvcyI6ICJpT1MiLA0KICAgICAgICAicGFja2FnZU5hbWUiOiAiY29tLmJhbnBhaXMubWJhbmtpbmciLA0KICAgICAgICAicHJvZHVjdCI6ICJTZWxwaElEIiwNCiAgICAgICAgInZlcnNpb24iOiAiMS4wIg0KICAgIH0sDQogICAgInByb3ZpZGVyIjogIkZhY2VQaGkiDQp9"
-                ACH_NAME_REGEXP: ^([a-zA-Z0-9]{1,}\s[a-zA-Z0-9]{3,}|[a-zA-Z0-9]{2,}\s[a-zA-Z0-9]{2,}|[a-zA-Z0-9]{3,}\s[a-zA-Z0-9]{1,})(\s[a-zA-Z0-9]{1,})*\s*$
-                ACH_NAME_REGEXP_V2: ^([a-zA-Z0-9]{1,}\s[a-zA-Z0-9]{3,}|[a-zA-Z0-9]{2,}\s[a-zA-Z0-9]{2,}|[a-zA-Z0-9]{3,}\s[a-zA-Z0-9]{1,})(\s[a-zA-Z0-9]{1,})*\s*$
-                valid-characters: "~!/<>[]{};*#ñÑ"
-                contract-e2-id: contract01
-                commission_ACH: "Q29taXNpw7NuIHBvciBlbnbDrW8gdHJhbnNmZXJlbmNpYSBBQ0ggTC40MC4wMA=="
-                #PRM-4880: Ynl0ZQ==
-                #PRM-5880: true
-                #PRM-6880: true
-                multipayment-url-icon: https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/
-                Multipayment: true
-                enableDigitalBankAccount: true
-                enableSplitItAll: true 
-                MultipaymentRegisterDueDays: 3d
-                welcomMessage: RXN0aW1hZG8gY2xpZW50ZXzCoUFob3JhIHB1ZWRlcyByZWFsaXphciB0dXMgZ2VzdGlvbmVzIGEgdHJhdsOpcyBkZSBCUCBlbiBMw61uZWEh      
-                ercomment: XlswLTlBLVphLXpcICpdezAsNjB9JA==
-              contacts-info:
-                whatsapp: +50425451212
-                email: asuservicio@banpais.hn
-                phone: +50425451212
-                email-subject: "Soporte Banpaís"
-              endpoints:
-                interest-sites: /v1-crypt/settings/sites
-                statements: /v1-crypt/statements/
-                resumes: /v1-crypt/resumes/
-                login: /v1-crypt/oauth/
-                logout: /v1-crypt/oauth/revoke
-                token: /v1-crypt/tokens/
-                accounts-and-permissions: /v1-crypt/accounts/
-                app-customization: /v1-crypt/settings
-                facephi: /v1-crypt/facephi/
-                rates: /v1-crypt/settings/rates
-                places: /v1-crypt/settings/locations
-                favorites: /v1-crypt/favorites/
-                favorites-owns: /v1-crypt/favorites/owns
-                favorites-thirdparties: /v1-crypt/favorites/thirdparties
-                favorites-payments: /v1-crypt/payments/favorites
-                reset-password: /v1-crypt/reset-password/
-                set-password: /v1-crypt/set-password/
-                thirdparties: /v1-crypt/thirdparties
-                ach-accounts: /v1-crypt/ach-modular/
-                ach-configuration: /v1-crypt/transferences-modular/ach-configuration
-                transferences: /v1-crypt/transferences-modular
-                rates-apply-in-transference: /v1-crypt/transferences-modular/rate-to-apply
+                rates-apply-in-transference: /v1-crypt/transferences-modular/rate-to-apply                
                 permissions-and-operations: /v1-crypt/permissions
                 loan-payments: /v1-crypt/payments/loan
                 credit-card-payments: /v1-crypt/payments/credit-card
@@ -5192,6 +4759,173 @@ data:
             max-idle: 4
           timeouts:
             request: 5s
+  user-recognition-server.yml: |
+    defaults:
+      core-service: &default-core-service
+        dta-q-read:
+          library: ${system-core.queue-library}
+          queue-name: ${system-core.queue-name-read}
+        dta-q-write:
+          library: ${system-core.queue-library} 
+          queue-name: ${system-core.queue-name-write}  
+
+    management:
+      zipkin:
+        enabled: false
+        tracing:
+          endpoint: http://zipkin:9411
+      endpoint:
+        env:
+          show-values: always
+        configprops:
+          show-values: always
+        health:
+          show-details: always
+
+    user-recognition:
+      components:
+        selphid:
+          license-path: /app/selphid/config/selphid.cfg
+        blacklist:
+          enabled: true
+          customer-type-mapper:
+            default-value: n
+            mappings:
+              business: j
+        core-blacklist:
+          documents-mapping:
+            default-value: I
+            mappings:
+              id: I
+              passport: P   
+      rules:
+        "[PASSWORD_RESET]": 
+          resource: file:///app/rules/password-reset.drl
+          globals:
+            com.bytesw.tyu.server.userrecognition.comparator.RuleCompartor: ["userPhotoWithRNPPhotoComparator"]
+            com.bytesw.tyu.server.userrecognition.rules.EvaluationRule: ["authenticateDocumentEvaluationRule","checkLivelinessEvaluationRule","banpaisBlackListEvaluationRule", "coreBlackListRule"]
+            com.bytesw.tyu.server.userrecognition.extractors.InfoExtractor: ["rnpExtractor","coreProfileExtractor"]
+
+    server:
+      error:
+        mappings:
+          default-map:
+            title: Error Desconocido
+            #detail: Ocurrio un error desconocido!
+            status: internal-server-error
+          exception-mapping:
+            '[com.bytesw.tyu.server.rulesengine.drools.exception.RuleEngineGenericException]':
+              status: bad-request
+              detail: Problemas en la evaluación de las reglas
+            '[com.bytesw.tyu.server.rulesengine.drools.exception.RuleNotFoundException]':
+              status: not-found
+              title: Regla no encontrada
+              detail: La regla no está definida o bien no ha sido debidamente cargada.
+            '[org.kie.api.runtime.rule.ConsequenceException]':
+              message-extractor-bean-name: droolsExceptionMessageExtractor
+              status: bad-gateway
+              title: Error en reglas
+            
+    spring:
+      webflux:
+        problemdetails:
+          enabled: true
+          
+        multipart:
+          max-parts: 5
+          max-in-memory-size: -1
+          max-disk-usage-per-part: -1
+
+    transactions:
+      manager:
+        username: ${system-core.username}
+        password: ${system-core.password}
+        system-name: ${system-core.system-name}
+        pool:
+          max-connections: 5
+          ccsid-for-read: 1145
+        default-read-timeout: 1m
+        map-transactions:
+          app-vadblc:
+            bean-name: banpaisBlacklistTransaction
+          app-vallns:
+            bean-name: validateBlackListTransaction
+          app-cnspsg:
+            bean-name: querySecurityProfileTransaction
+      app-cnspsg:
+        <<: *default-core-service
+      app-vallns:
+        <<: *default-core-service
+        fields:
+          "[Apellido1]":
+            length: 15
+            json-path: "$.surename"
+          "[Apellido2]":
+            length: 15
+            json-path: "$.secondSurename"
+          "[ApellidoCasadaBenef]":
+            length: 15
+            json-path: ""
+          "[Nombre1]":
+            length: 15
+            json-path: "$.firstName"
+          "[Nombre2]":
+            length: 15
+            json-path: "$.secondName"
+          "[Parentesco]":
+            length: 10
+            json-path: ""
+          "[Beneficiario ID]":
+            length: 13
+            json-path: ""
+            type: number
+          "[Proposito]":
+            length: 40
+            json-path: ""
+          "[Monto Mensual]":
+            length: 13
+            json-path: ""
+            type: number 
+          "[Tip Entrega]":
+            length: 1
+            json-path: ""  
+          "[Direccion 1]":
+            length: 100
+            json-path: ""
+          "[Direccion 2]":
+            length: 100
+            json-path: ""
+          "[Direccion 3]":
+            length: 100
+            json-path: ""
+    regional:
+      services:
+        black-list:
+          user: app_ByteDe
+          password: YQBwAHAAXwBCAHkAdABlAEQAZQBzAGEAcgByAG8AbABsAG8A
+          grupoLista: "09"
+          remote-address: https://${host.ListaNegra}/ListasNegras.asmx
+          pooled: true
+          pool-config:
+            max-size: 8
+            min-idle: 4
+            max-idle: 4
+          timeouts:
+            general: 1m
+        rnp:
+          enabled: false
+          endpoint: http://${host.rnp}/persona/datosGenerales
+          #endpoint: http://wiremock.regional-services.svc.cluster.local:8080/persona/datosGenerales
+          username: prueba17
+          password: Tyw3SY0gN2h6iuO
+          connection:
+            timeout: 20s
+            status: bad_request
+            message: "No es posible registrar al beneficiario en este momento. Inténtalo nuevamente." 
+          timeout: 
+            timeout: 30s
+            status: bad_request
+            message: "Revisa los datos ya que el número de identidad no es válido e inténtalo nuevamente."
   data-storage-service-bp.yml: |
     regional:
       services:
@@ -5254,7 +4988,7 @@ data:
             - name: WebSecurityRequestFilter
               args:
                 errorMessage: "x-7517 No corresponde"
-                excludeUris: /v3/settings/,/hn/settings/,/v1/facephi/template,/v1/oauth/token,/v1/oauth/revoke,/v1/extra-financing/apply,/v1/password-recovery/,/v1/password-recovery/verify
+                excludeUris: /v3/settings/,/hn/settings/,/v1/facephi/template,/v1/oauth/token,/v1/oauth/revoke,/v1/extra-financing/apply,/v1/password-recovery/,/v1/password-recovery/verify,/v1/password-recovery/verifyS
             - name: WebSecurityResponseFilter
             - name: ExceptionHandlerFilter
               args:
@@ -5272,11 +5006,11 @@ data:
                     token-type: EXTERNAL
                     methods:
                       - PUT    
-                  - path: "^/v1-crypt/password-recovery/((/)?(?!verify)(\\w|\\-|\\=|\\?)(/)?)*$"
-                    transaction-type: V1
-                    token-type: INTERNAL
-                    methods:
-                      - POST                                
+                  #- path: "^/v1-crypt/password-recovery/((/)?(?!verify)(\\w|\\-|\\=|\\?)(/)?)*$"
+                  #  transaction-type: V1
+                  #  token-type: INTERNAL
+                  #  methods:
+                  #    - POST                                
             - name: PreserveHostHeader
             - name: AddHeaderFilter
               args:
@@ -5292,6 +5026,21 @@ data:
                 allowed-origins: "*"
                 allowed-methods: "*"
           routes:
+            -
+              id: image_plus
+              uri: 'http://image-plus-server:8080/'
+              predicates:
+                - 'Header=X-Account-Type, CREDIT_CARD'
+                - 'Path=/v1-crypt/image-plus/**'
+              filters:
+                - 'RewritePath=/v1-crypt/image-plus/(?<segment>/?.*), /v1/image-plus/$\{segment}'
+            -
+              id: password_recovery_v2
+              uri: 'http://authentication-server:8080/'
+              predicates:
+                - 'Path=/v1-crypt/password-recovery'
+              filters:
+                - 'RewritePath=/v1-crypt/password-recovery, /v1/password-recovery'            
             -
               id: extra_v1
               uri: 'http://credit-card-payments-service:8080/'
@@ -5842,8 +5591,16 @@ data:
         timeouts:
           request: ${pools.web-services.timeout}
     extra-financing:
+      crm-case-properties:
+        case-number: 23164
       text-policy:
-        card-name-policy: TRIM
+        card-name-policy: TRIM  
+      image-plus:
+        process: EXTRAF
+        save-in-temp: false 
+    image-plus:
+      client:
+        remote-server: http://image-plus-server:8080/
     contract:
       extra-financing:
         contract-configuration:
@@ -5938,6 +5695,7 @@ data:
         credit-card-endpoint: http://credit-card-service:8080/
         notifications-endpoint:  http://notifications-service:8080
         document-endpoint: http://documents-server:8080/v1/e-documents
+        crm-management-endpoint: http://crm-management-service:8080/
       dividelo-todo:
         currencies:
           currency-default: UNDEFINED
@@ -6236,8 +5994,14 @@ data:
               "[PROCESS]":
                 length: 15
               "[PARAMS]":
-                type: list  
+                type: list
   crm-management-server.yml: |
+    security:
+      exposed-ant-matchers:
+        - /v1/exposed/crm/**
+        - /actuator/**
+        - /v2/api-docs/**
+        - /v1/exposed/crm-attachment/**
     spring:
       jackson:
         time-zone: "GMT-6"
@@ -6348,8 +6112,8 @@ data:
           company: "2"
           employee: "0"
         all-processes:
-          title-as-placeholder:  true
-          time-to-expire-cache-for-process: 2m
+          title-as-placeholder:  false
+          time-to-expire-cache-for-process: 6h
           default-process:
             debug: true
             description: "process.title"
@@ -6558,8 +6322,78 @@ data:
             minLength: 1
             endpoint: ""
             validations: ""
-            alignment: "center_horizontal"
+            alignment: "center_horizontal"    
+        cases-for-clients:
+          extra-financing:
+            caseNumber: "23164"
+            idStep: "1"
+            components:
+              504047: "data.name"
+              504048: "data.dni"
+              504050: "data.truncatedCard"
+              504051: "data.amount"
+              504052: "data.tasaNumber"
+              504053: "data.plazoNumber"
+              504054: "data.email"
+              504056: "data.domicilio"
+          authentication-server:
+            caseNumber: "23167"
+            custom-cif: "data.PLANTILLA.CIF"
+            components:
+              504179: "data.PLANTILLA.CIF"
+              504180: "data.PLANTILLA.username"
+              504181: "data.PLANTILLA.EMAIL"
+              504182: "data.PLANTILLA.PHONE"
+              504183: "data.PLANTILLA.OPERATOR"
+
         processes:
+          23167:
+            sort-fields-policy: crm_order
+            steps:
+              - id: "1"
+                title: "Creacion perfil"
+            default-field-properties:
+              step: "1"
+              value-for-crm:  "data.^[id==#field.getStep()].components.^[code==#field.getCode()].text"
+            process-fields:
+              504179: 
+              504180: 
+              504181: 
+              504182: 
+              504183: 
+
+          23164:
+            steps:
+              - id: "1"
+                title: "Desembolso Extra-Financiamiento (BACKGROUND)"
+            core-services-pre-crm:
+              generalInfo:
+                service: app-infgra
+                properties:
+                  INFORMATION_TYPE: "'G'"
+                error-status-code: BAD_REQUEST
+                error-message: Cliente no localizado
+                stop-if-throws: false
+            default-field-properties:
+              step: "1"
+              send-to-app: true
+              value-for-app: "data.^[id==#field.getStep()].components.^[code==#field.getCode()].text"
+              value-for-crm: "data.^[id==#field.getStep()].components.^[code==#field.getCode()].text"
+            process-fields:
+              504047:
+              504048:
+              504049:
+                send-to-app: false
+                value-for-crm: "generalInfo.^[id=='CIF'].value"
+              504050:
+              504051:
+              504052:
+              504053:
+              504054:
+              504055:
+                send-to-app: false
+                value-for-crm: "generalInfo.^[id=='dszona'].value"
+              504056:
           16056:
             include-all: false
             title: "Solicitud de reversión cobros tarjetas de crédito"
@@ -7096,7 +6930,7 @@ data:
                       hiddenHeader: true
                       placeholder: "Departamento"
                       without-padding-bottom: true
-                      endpoint: "/v1-crypt/catalogs/departments?codpai=001"
+                      endpoint: "/v1/catalogs/departments?codpai=001"
                       dropdown-id: "coddep"
                       required: true
                     - code: muni 
@@ -7105,7 +6939,7 @@ data:
                       hiddenHeader: true
                       placeholder: "Municipio"
                       without-padding-bottom: true
-                      endpoint: "/v1-crypt/catalogs/municipalities?codpai=001"
+                      endpoint: "/v1/catalogs/municipalities?codpai=001"
                       dropdown-id: "codmun"
                       parent: "depa"
                       required: true
@@ -7661,7 +7495,7 @@ data:
                 header: "Tipo de devolución"
                 options:
                   - code: "TOTAL"
-                    title: "total"
+                    title: "Total"
                     showComponents: 
                       - code: "200314"
                         visibility: false
@@ -7877,7 +7711,7 @@ data:
                   - code: "FRAUDE"
                     title: "Fraude"
                   - code: "DETERIORO"
-                    title: "Deterioro"              
+                    title: "Deterioro"
             functions:
               "concat053":
                 resolver-bean-name: crmSimpleParametersResolver
@@ -7885,6 +7719,212 @@ data:
                 result-fields:
                   - name: concat053
                     expression: "#joinWithoutNull(' ', data.^[id=='1_child_direccion'].components.^[code=='muni'].text,' ')"
+          23161:
+            include-all: false
+            title: "Reposición de tarjeta de crédito"
+            sort-fields-policy: INDEX_ORDER
+            core-services-pre-crm:
+              generalInfo: *crm-generalInfo
+              infoCards: *crm-infoCards-tarjeta
+            tags:
+              - retiro
+            steps:
+              - id: "1"
+                title: "Reposición de tarjeta de crédito"
+                currentProgress: 0
+                progressGoal: 0
+                next-step: "finalStep"
+                showCancelButton: true
+            default-field-properties:
+              step: "1"
+              required: true
+            process-fields:
+              "503148":
+                send-to-app: false
+                value-for-crm: "generalInfo.^[id=='CIF'].value"
+              "503149":
+                send-to-app: false
+                value-for-crm: "'NATURAL'"
+              "503150":
+                send-to-app: false
+                value-for-crm: "generalInfo.^[id=='NomCom'].value"
+              "503151":
+                send-to-app: false
+                value-for-crm: "generalInfo.^[id=='numeid'].value"
+              "503152":
+                index: 4
+                <<: *crm-field-mail
+                placeholder: "Ingresa tu correo electrónico"
+              "503153":
+                index: 3
+                <<: *crm-field-phone
+                placeholder: "Ingresa tu número de teléfono"
+              "503154":
+                send-to-app: false
+                value-for-crm: "data.^[id==#field.getStep()].components.^[code=='503153'].text"
+              "tarjeta":
+                index: 2
+                <<: *crm-field-accountsTC
+                endpoint: /v1-crypt/crm/accounts?type=CREDIT_CARD&status=ACTIVE
+              "503155":
+                send-to-app: false
+                variables-for-crm:
+                 account: "data.^[id==#field.getStep()].components.^[code=='tarjeta'].text"
+                 accountObj: "infoCards.^[number==#account].accountFormatted"
+                value-for-crm: "#accountObj.substring(12,16)"
+              "503156":
+                send-to-app: false
+                variables-for-crm:
+                 account: "data.^[id==#field.getStep()].components.^[code=='tarjeta'].text"
+                 accountObj: "infoCards.^[number==#account]"
+                value-for-crm: "#accountObj.number"
+              "direccion":
+                index: 5
+                <<: *crm-field-subform
+                header: "Dirección"
+                placeholder: "Ingresa una dirección"
+                endpoint: "/v1-crypt/crm/calculate/17449/concat053" 
+                child-component:
+                - components:
+                    - code: barrio
+                      <<: *crm-field-inputAlfa
+                      max-length: 100
+                      header: "Barrio"
+                      hiddenHeader: true
+                      placeholder: "Barrio/colonia/residencial"
+                      without-padding-bottom: true
+                      required: true
+                    - code: calle
+                      <<: *crm-field-inputAlfa
+                      max-length: 100
+                      header: "Calle"
+                      hiddenHeader: true
+                      placeholder: "Calle"
+                      without-padding-bottom: true
+                      required: true
+                    - code: avenida
+                      <<: *crm-field-inputAlfa
+                      max-length: 100
+                      header: "Avenida"
+                      hiddenHeader: true
+                      placeholder: "Avenida"
+                      without-padding-bottom: true
+                      required: true
+                    - code: bloque
+                      <<: *crm-field-inputAlfa
+                      max-length: 100
+                      header: "Bloque"
+                      hiddenHeader: true
+                      placeholder: "Bloque"
+                      without-padding-bottom: true
+                      required: true
+                    - code: etapa
+                      <<: *crm-field-inputAlfa
+                      max-length: 100
+                      header: "Etapa"
+                      hiddenHeader: true
+                      placeholder: "Etapa"
+                      without-padding-bottom: true
+                      required: true
+                    - code: puntref
+                      <<: *crm-field-inputAlfa
+                      max-length: 100
+                      hiddenHeader: true
+                      placeholder: "Punto de referencia"
+                      header: "Punto de referencia"
+                      without-padding-bottom: true
+                      required: true
+                    - code: casa
+                      <<: *crm-field-inputAlfa
+                      max-length: 100
+                      header: "Casa"
+                      hiddenHeader: true
+                      placeholder: "No. de casa"
+                      without-padding-bottom: true
+                      required: true
+                    - code: depa
+                      <<: *crm-field-dropdown
+                      header: "Departamento"
+                      hiddenHeader: true
+                      placeholder: "Departamento"
+                      without-padding-bottom: true
+                      endpoint: "/v1-crypt/catalogs/departments?codpai=001"
+                      dropdown-id: "coddep"
+                      required: true
+                    - code: muni 
+                      <<: *crm-field-dropdown
+                      header: "Municipio"
+                      hiddenHeader: true
+                      placeholder: "Municipio"
+                      without-padding-bottom: true
+                      endpoint: "/v1-crypt/catalogs/municipalities?codpai=001"
+                      dropdown-id: "codmun"
+                      parent: "depa"
+                      required: true
+                      hidden: true
+                      visibility: false
+              "503157":
+                send-to-app: false
+                value-for-crm: "#joinWithoutNull(' ',data.^[id=='1_child_direccion'].components.^[code=='barrio'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='calle'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='avenida'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='bloque'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='etapa'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='puntref'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='casa'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='depa'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='muni'].text)"
+              "503158":                                    
+                send-to-app: false
+                value-for-crm: "#joinWithoutNull(' ',data.^[id=='1_child_direccion'].components.^[code=='barrio'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='calle'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='avenida'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='bloque'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='etapa'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='puntref'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='casa'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='depa'].text
+                                                    ,data.^[id=='1_child_direccion'].components.^[code=='muni'].text)"
+              "503159":
+                send-to-app: false
+                value-for-crm: "generalInfo.^[id=='banpai'].value"
+              "503160":
+                send-to-app: false
+                value-for-crm: "generalInfo.^[id=='dszona'].value"
+              "503161":
+                send-to-app: false
+                value-for-crm: "' '"
+              "503162":
+                send-to-app: false
+                value-for-crm: "' '"
+              "503163":
+                send-to-app: false
+                value-for-crm: "' '"
+              "503164":
+                send-to-app: false
+                value-for-crm: "' '"
+              "503165":
+                index: 6
+                <<: *crm-field-radiobutton
+                send-to-app: true
+                title:  "Motivo de reposición"
+                header: "Motivo de reposición"
+                options:
+                  - code: "ROBO"
+                    title: "Robo"
+                  - code: "EXTRAVÍO"
+                    title: "Extravío"
+                  - code: "FRAUDE"
+                    title: "Fraude"
+                  - code: "DETERIORO"
+                    title: "Deterioro"
+            functions:
+              "concat053":
+                resolver-bean-name: crmSimpleParametersResolver
+                internal-resolution: true
+                result-fields:
+                  - name: concat053
+                    expression: "#joinWithoutNull(' ', data.^[id=='1_child_direccion'].components.^[code=='muni'].text,' ')"                    
           21829:
             include-all: false
             title: "Solicitud de tarjeta de crédito"
@@ -8802,6 +8842,14 @@ data:
             wiretap: true
 
           routes:
+            -
+              id: image_plus
+              uri: 'http://image-plus-server:8080/'
+              predicates:
+                - 'Header=X-Account-Type, CREDIT_CARD'
+                - 'Path=/v1-crypt/image-plus/**'
+              filters:
+                - 'RewritePath=/v1-crypt/image-plus/(?<segment>/?.*), /v1/image-plus/$\{segment}'
             -
               id: extra_v1
               uri: 'http://credit-card-payments-service:8080/'
@@ -9953,6 +10001,79 @@ data:
             max-idle: 4
           timeouts:
             request: 5m
+  image-plus-server.yml: |
+    management:
+      zipkin:
+        enabled: false
+        tracing:
+          endpoint: http://zipkin:9411
+      endpoint:
+        env:
+          show-values: always
+        configprops:
+          show-values: always
+        health:
+          show-details: always
+
+    spring:
+      rabbitmq:
+        addresses: rabbitmq
+        username: user
+        password: pass
+        listener:
+          simple:
+            retry:
+              enabled: true
+        template:
+          retry:
+            enabled: true  
+    image-plus:
+      records-per-process:
+        '[EXTRAF]':
+          retries: 1
+          rounds: 1
+          records:
+            3:
+              username: 2128
+              category: 13
+              document-type: 137
+              expiration-date-plus: 10y
+              keys:
+                1:
+                  json-path: "$.PLANTILLA.CIF"
+                2:
+                  json-path: "$.PLANTILLA.name"
+                3:
+                  json-path: "$.VOUCHER.DNI"
+              files:
+                'contract':
+                  anverso: true
+                  sheet: 1
+                'sign':
+                  anverso: false
+                  sheet: 1
+
+    services:
+      imageplus:
+        pooled: true
+        remote-address: https://${host.imageplus}/Ws_Gestiona_Expediente.asmx
+        user: 1
+        password: BIHom3l@nd
+        timeouts:
+          general: 3m
+
+    image-conversion:
+      service:
+        conversion-steps:
+          "[application/pdf]":
+            - pdfToTiffProcessor
+          "[image/jpeg]":
+            - imageTo24BitProcessor
+            - imageToTiffProcessor
+          "[image/png]":
+            - imageTo24BitProcessor
+            - imageToTiffProcessor  
+            
   thirdparties-service.yml: |
     transactions:
       app-admter:
@@ -10371,7 +10492,7 @@ data:
       transferences:
         ach:
           communication-strategy: asynchronous
-          async-timeout: 30s
+          async-timeout: 2s
         own:
           permissions:
             checking:
@@ -10577,8 +10698,8 @@ data:
       undertow:
         no-request-timeout: 1s
         threads:
-          worker: 4000
-          io: 2000
+          worker: 1000
+          io: 500
         #options:
           #socket:
             #TCP_NODELAY: true
@@ -24169,7 +24290,7 @@ data:
             bean-name: regionalAchListTransaction
     core:
       configuration-clients:
-        favorites-endpoint: http://favorites-service:8080/v1/ach
+        favorites-endpoint: http://favorites-service:8080/
       ach-configuration:
         alias-policy: alias-name-account
         sorting-policy: alias
@@ -24395,7 +24516,7 @@ data:
         password: ""
 
       ach-currencies:
-        currency-default: ""
+        currency-default: UNDIFINED
         mappings:
           HNL: "LPS"
           USD: "US$"
@@ -24989,10 +25110,10 @@ data:
               custom-profile-data: true
               message: |
                 Tu codigo de verificacion [[${vars.get('bank').textValue()}]] es [[${vars.get('token').textValue()}]].
-        RESET_PASSWORD:
+        PASSWORD_RECOVERY:
           EVENT:
             - channel: sms
-              custom-profile-data: false
+              custom-profile-data: true
               message: |
                 Tu codigo de verificacion BP en Linea es [[${vars.get('token').textValue()}]].                   
         THIRDPARTY:
@@ -25065,7 +25186,6 @@ data:
           EVENT:
           - channel: email
             subject: Bloqueo temporal de tarjeta
-            #custom-profile-data: true
             attachment-included: false
             message: |
               <html lang="en">
@@ -25572,194 +25692,477 @@ data:
                 </body>
                 </html>
         EXTRA-FINANCING_PAYMENT_SERVICE:
-          ADD:
+              EVENT:
+                - channel: email
+                  subject: Comprobante de extrafinanciamiento
+                  custom-profile-data: false
+                  attachment-included: true
+                  subject-template: false
+                  attachment-id: "extra-financing-contractBP"
+                  mime-type: application/octet-stream
+                  attachment-name: "Contrato_Extrafinanciamiento.pdf"
+                  message: |
+                    <html lang="en">
+                      <head>
+                          <meta charset="UTF-8" />
+                          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                          <title>Notificacion de Extrafinanciamiento</title>
+                          <style>
+                            .second-row {
+                            display: flex;
+                            flex-direction: column;
+                            border-bottom: 1px solid #013f7c;   
+                            border-top: 1px solid #013f7c;          
+                            padding: 15px 0;
+                            }
+                            .second-row .second-row-item {
+                            display: flex;
+                            margin-bottom: 10px;
+                            flex-direction: row;
+                            }
+                            .second-row .second-row-item .second-row-item-desc {
+                            min-width: 280px;
+                            }
+                          </style>
+                      </head>
+                      <body style='font-family: "century-gothic", sans-serif;
+                          font-size: 18px;
+                          font-weight: 400;
+                          color: #013f7c;
+                          line-height: normal;
+                          margin: 0;' th:with="plantilla=${vars.get('PLANTILLA')}">
+                          <div class="main-container" style=" width: 100%;
+                            background-color: #013f7c;" >
+                            <div style="padding: 25px 15px;
+                                width: 650px;
+                                max-width: 650px;
+                                margin: 0 auto;
+                                border-radius: 20px;
+                                background-color: #ffffff;">
+                                <table width="650px">
+                                  <tbody>
+                                      <tr>
+                                        <td>
+                                            <div class="logo-container" style="width: 100%;text-align: center;">
+                                              <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/logo.png"
+                                                  style="width: 200px;" />
+                                            </div>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                            <div class="first-row" style="margin-top: 20px;">
+                                              <p style="margin: 0;">Estimado (a): <span th:if="${plantilla.hasNonNull('name')}"
+                                                          th:text="${plantilla.get('name').asText()}"></span></p>
+                                              <table style="margin-top: 20px;">
+                                                  <tbody>
+                                                    <tr>
+                                                        <td>
+                                                          <div class="firs-row-items-img" style=" text-align: center;
+                                                              padding: 10px 1px;
+                                                              border-radius: 50%;
+                                                              min-width: 50px;
+                                                              background-color: #feee00;
+                                                              margin-right: 10px;">
+                                                              <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/bell.png"
+                                                                alt="" class="icon" style="width: 20px;
+                                                                margin: 0 auto;" />
+                                                          </div>
+                                                        </td>
+                                                        <td>
+                                                          <p>Te notificamos que tu solicitud de <b>Extrafinanciamiento</b> fue procesada exitosamente. A continuación te compartimos el detalle de la misma:</p>
+                                                        </td>
+                                                    </tr>
+                                                  </tbody>
+                                              </table>
+                                            </div>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                            <div class="second-row">
+                                              <ul style="list-style: none;padding: 0;">
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Fecha y hora:</strong> <span th:if="${plantilla.hasNonNull('dateTime')}"
+                                                          th:text="${plantilla.get('dateTime').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Codigo de autorización:</strong><span th:if="${plantilla.hasNonNull('authorization')}"
+                                                          th:text="${plantilla.get('authorization').asText()}"></span> </p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>No. Tarjeta:</strong> <span th:if="${plantilla.hasNonNull('card')}"
+                                                          th:text="${plantilla.get('card').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Cuenta a acreditar:</strong> <span th:if="${plantilla.hasNonNull('targetAccount')}"
+                                                          th:text="${plantilla.get('targetAccount').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Tipo de financiamiento:</strong> <span th:if="${plantilla.hasNonNull('type')}"
+                                                          th:text="${plantilla.get('type').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Seguro:</strong> <span th:if="${plantilla.hasNonNull('insurance')}"
+                                                          th:text="${plantilla.get('insurance').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Tasa de interés:</strong> <span th:if="${plantilla.hasNonNull('interestRate')}"
+                                                          th:text="${plantilla.get('interestRate').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Monto:</strong> <span th:if="${plantilla.hasNonNull('amount')}"
+                                                          th:text="${plantilla.get('amount').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Plazo:</strong> <span th:if="${plantilla.hasNonNull('term')}"
+                                                          th:text="${plantilla.get('term').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Comisión única:</strong> <span th:if="${plantilla.hasNonNull('comission')}"
+                                                          th:text="${plantilla.get('comission').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                                  <li>
+                                                    <div class="second-row-item-desc">
+                                                        <p style="margin: 0;"><strong>Cuota mensual:</strong> <span th:if="${plantilla.hasNonNull('fee')}"
+                                                          th:text="${plantilla.get('fee').asText()}"></span></p>
+                                                    </div>
+                                                  </li>
+                                              </ul>
+                                            </div>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                            <div class="thirt-row">
+                                              <p class="thirt-row-desc">La información detallada en el presente recibo podrás visualizarla en tu próximo estado de cuenta.</p>
+                                              <p class="thirt-row-desc">Si tienes consultas, comunícate con nuestros agentes de Call Center vía llamada o WhatsApp al <b>2545-1212</b>, también puedes escribir al correo: <b>asuservicio@banpais.hn</b></p>
+                                            </div>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                            <div class="foter-container" style="width: 100%;">
+                                              <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/footer.jpg" alt=""
+                                                  style=" width: 100%;" />
+                                            </div>
+                                        </td>
+                                      </tr>
+                                  </tbody>
+                                </table>
+                            </div>
+                          </div>
+                      </body>
+                    </html>
+        RESET_PASSWORD_MAIL:
+          event:
             - channel: email
-              subject: Comprobante de extrafinanciamiento
-              message: |
-                <!DOCTYPE html>
-                <html lang="en" th:with="plantilla=${#vars.getVariable('vars').get('PLANTILLA')}">
-                <p>Estimado (a): <strong><span th:text="${plantilla.get('name')}"></span></strong></p>
-                <p th:text="${plantilla.hasNonNull('dateTime')}"></p>
-                <br/>
-          EVENT:
-            - channel: email
-              subject: Comprobante de extrafinanciamiento
+              subject: Notificación Cambio De Contraseña.
+              attachment-included: false
               custom-profile-data: true
-              attachment-included: true
               message: |
                 <html lang="en">
-                  <head>
-                      <meta charset="UTF-8" />
-                      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-                      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                      <title>Notificacion de Extrafinanciamiento</title>
-                      <style>
+
+                <head>
+                    <meta charset="UTF-8" />
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>Notificaci&oacute;n Cambio de Contrase&ntildea</title>
+                    <style>
                         .second-row {
-                        display: flex;
-                        flex-direction: column;
-                        border-bottom: 1px solid #013f7c;   
-                        border-top: 1px solid #013f7c;          
-                        padding: 15px 0;
+                            display: flex;
+                            flex-direction: column;
+                            border-bottom: 1px solid #013f7c;
+                            border-top: 1px solid #013f7c;
+                            padding: 15px 0;
                         }
+
                         .second-row .second-row-item {
-                        display: flex;
-                        margin-bottom: 10px;
-                        flex-direction: row;
+                            display: flex;
+                            margin-bottom: 10px;
+                            flex-direction: row;
                         }
+
                         .second-row .second-row-item .second-row-item-desc {
-                        min-width: 280px;
+                            min-width: 280px;
                         }
-                      </style>
-                  </head>
-                  <body style='font-family: "century-gothic", sans-serif;
-                      font-size: 18px;
-                      font-weight: 400;
-                      color: #013f7c;
-                      line-height: normal;
-                      margin: 0;'>
-                      <div class="main-container" style=" width: 100%;
-                        background-color: #013f7c;">
+                    </style>
+                </head>
+
+                <body style='font-family: "century-gothic", sans-serif;
+                                                                font-size: 18px;
+                                                                font-weight: 400;
+                                                                color: #013f7c;
+                                                                line-height: normal;
+                                                                margin: 0;' th:with="plantilla=${vars.get('PLANTILLA')}">
+                    <div class="main-container" style=" width: 100%;
+                                                                background-color: #013f7c;">
                         <div style="padding: 25px 15px;
-                            width: 650px;
-                            max-width: 650px;
-                            margin: 0 auto;
-                            border-radius: 20px;
-                            background-color: #ffffff;">
+                                                                    width: 650px;
+                                                                    max-width: 650px;
+                                                                    margin: 0 auto;
+                                                                    border-radius: 20px;
+                                                                    background-color: #ffffff;">
                             <table width="650px">
-                              <tbody>
-                                  <tr>
-                                    <td>
-                                        <div class="logo-container" style="width: 100%;text-align: center;">
-                                          <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/logo.png"
-                                              style="width: 200px;" />
-                                        </div>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                        <div class="first-row" style="margin-top: 20px;">
-                                          <p style="margin: 0;">Estimado (a): <span th:if="${plantilla.hasNonNull('name')}"
-                                                      th:text="${plantilla.get('name').asText()}"></span></p>
-                                          <table style="margin-top: 20px;">
-                                              <tbody>
-                                                <tr>
-                                                    <td>
-                                                      <div class="firs-row-items-img" style=" text-align: center;
-                                                          padding: 10px 1px;
-                                                          border-radius: 50%;
-                                                          min-width: 50px;
-                                                          background-color: #feee00;
-                                                          margin-right: 10px;">
-                                                          <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/bell.png"
-                                                            alt="" class="icon" style="width: 20px;
-                                                            margin: 0 auto;" />
-                                                      </div>
-                                                    </td>
-                                                    <td>
-                                                      <p>Te notificamos que tu solicitud de <b>Extrafinanciamiento</b> fue procesada exitosamente. A continuación te compartimos el detalle de la misma:</p>
-                                                    </td>
-                                                </tr>
-                                              </tbody>
-                                          </table>
-                                        </div>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                        <div class="second-row">
-                                          <ul style="list-style: none;padding: 0;">
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Fecha y hora:</strong> <span th:if="${plantilla.hasNonNull('dateTime')}"
-                                                      th:text="${plantilla.get('dateTime').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Codigo de autorización:</strong><span th:if="${plantilla.hasNonNull('authorization')}"
-                                                      th:text="${plantilla.get('authorization').asText()}"></span> </p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>No. Tarjeta:</strong> <span th:if="${plantilla.hasNonNull('card')}"
-                                                      th:text="${plantilla.get('card').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Cuenta a acreditar:</strong> <span th:if="${plantilla.hasNonNull('targetAccount')}"
-                                                      th:text="${plantilla.get('targetAccount').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Tipo de financiamiento:</strong> <span th:if="${plantilla.hasNonNull('type')}"
-                                                      th:text="${plantilla.get('type').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Seguro:</strong> <span th:if="${plantilla.hasNonNull('insurance')}"
-                                                      th:text="${plantilla.get('insurance').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Tasa de interés:</strong> <span th:if="${plantilla.hasNonNull('interestRate')}"
-                                                      th:text="${plantilla.get('interestRate').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Monto:</strong> <span th:if="${plantilla.hasNonNull('amount')}"
-                                                      th:text="${plantilla.get('amount').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Plazo:</strong> <span th:if="${plantilla.hasNonNull('term')}"
-                                                      th:text="${plantilla.get('term').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Comisión única:</strong> <span th:if="${plantilla.hasNonNull('comission')}"
-                                                      th:text="${plantilla.get('comission').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                              <li>
-                                                <div class="second-row-item-desc">
-                                                    <p style="margin: 0;"><strong>Cuota mensual:</strong> <span th:if="${plantilla.hasNonNull('fee')}"
-                                                      th:text="${plantilla.get('fee').asText()}"></span></p>
-                                                </div>
-                                              </li>
-                                          </ul>
-                                        </div>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                        <div class="thirt-row">
-                                          <p class="thirt-row-desc">La información detallada en el presente recibo podrás visualizarla en tu próximo estado de cuenta.</p>
-                                          <p class="thirt-row-desc">Si tienes consultas, comunícate con nuestros agentes de Call Center vía llamada o WhatsApp al <b>2545-1212</b>, también puedes escribir al correo: <b>asuservicio@banpais.hn</b></p>
-                                        </div>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                        <div class="foter-container" style="width: 100%;">
-                                          <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/footer.jpg" alt=""
-                                              style=" width: 100%;" />
-                                        </div>
-                                    </td>
-                                  </tr>
-                              </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="logo-container" style="width: 100%;text-align: center;">
+                                                <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/logo.png"
+                                                    style="width: 200px;" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="first-row" style="margin-top: 20px;">
+                                                <p style="margin: 0;">Estimado (a): <b><span th:if="${plantilla.hasNonNull('FULL_NAME')}"
+                                                            th:text="${plantilla.get('FULL_NAME').asText()}"></span></b></p>
+                                                <table style="margin-top: 20px;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="firs-row-items-img" style=" text-align: center;
+                                                                        padding: 10px 1px;
+                                                                        border-radius: 50%;
+                                                                        min-width: 50px;
+                                                                        background-color: #feee00;
+                                                                        margin-right: 10px;">
+                                                                    <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/bell.png"
+                                                                        alt="" class="icon" style="width: 20px;
+                                                                        margin: 0 auto;" />
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <p>Te notificamos que tu <b>Cambio de Contrase&ntildea</b> fue realizado
+                                                                    exitosamente. A continuaci&oacute;n, te compartimos el detalle de la misma:
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="second-row">
+                                                <ul style="list-style: none;padding: 0;">
+                                                    <li>
+                                                        <div class="second-row-item-desc">
+                                                            <p style="margin: 0;"><strong>Dispositivo:</strong> <span
+                                                                    th:if="${plantilla.hasNonNull('USER-AGENT')}"
+                                                                    th:text="${plantilla.get('USER-AGENT').asText()}"></span></p>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="second-row-item-desc">
+                                                            <p style="margin: 0;"><strong>Ubicaci&oacute;n:</strong> <span
+                                                                    th:if="${plantilla.hasNonNull('location')}"
+                                                                    th:text="${plantilla.get('location').asText()}"></span></p>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="second-row-item-desc">
+                                                            <p style="margin: 0;"><strong>Fecha y hora:</strong><span
+                                                                    th:if="${plantilla.hasNonNull('DATE-TIME')}"
+                                                                    th:text="${plantilla.get('DATE-TIME').asText()}"></span></p>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="thirt-row">
+                                                <p class="thirt-row-desc">Si no reconoces esta actividad, comun&iacute;cate con nuestros
+                                                    agentes de Call Center v&iacute;a llamada o WhatsApp al <b>2545-1212 </b>, tambi&eacute;n puedes
+                                                    escribir al correo: <b>asuservicio@banpais.hn</b>.</p>
+                                                <p class="thirt-row-desc">Haz caso omiso de este mensaje, si solicitaste este cambio.
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="foter-container" style="width: 100%;">
+                                                <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/footer.jpg" alt=""
+                                                    style=" width: 100%;" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
-                      </div>
-                  </body>
+                    </div>
+                </body>
                 </html>
+        UPDATE_SECURITY_PROFILE:
+          event:
+            - channel: email
+              subject: Notificación Actualizacion de Perfil de seguridad.
+              attachment-included: false
+              custom-profile-data: true
+              message: |
+                <html lang="en">
+                    <head>
+                    <meta charset="UTF-8" />
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>Notificacion Actualizaci&oacute;n de Perfil de Seguridad</title>
+                    <style>
+                    .second-row {
+                    display: flex;
+                    flex-direction: column;
+                    border-bottom: 1px solid #013f7c;
+                    border-top: 1px solid #013f7c;
+                    padding: 15px 0;
+                    }
+                    
+                    .second-row .second-row-item {
+                    display: flex;
+                    margin-bottom: 10px;
+                    flex-direction: row;
+                    }
+                    
+                    .second-row .second-row-item .second-row-item-desc {
+                    min-width: 280px;
+                    }
+                    </style>
+                    </head>
+                    
+                    <body style='font-family: "century-gothic", sans-serif;
+                                                font-size: 18px;
+                                                font-weight: 400;
+                                                color: #013f7c;
+                                                line-height: normal;
+                                                margin: 0;' th:with="plantilla=${vars.get('PLANTILLA')}">
+                                                <div class="main-container" style=" width: 100%;
+                                                background-color: #013f7c;">
+                                                <div style="padding: 25px 15px;
+                                                    width: 650px;
+                                                    max-width: 650px;
+                                                    margin: 0 auto;
+                                                    border-radius: 20px;
+                                                    background-color: #ffffff;">
+                                                    <table width="650px">
+                                                    <tbody>
+                                                    <tr>
+                                                    <td>
+                                                    <div class="logo-container" style="width: 100%;text-align: center;">
+                                                                                                <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/logo.png"
+                                                                                                style="width: 200px;" />
+                                                    </div>
+                                                    </td>
+                                                    </tr>
+                                                    <tr>
+                                                    <td>
+                                                    <div class="first-row" style="margin-top: 20px;">
+                                                    <p style="margin: 0;">Estimado (a): <b><span th:if="${plantilla.hasNonNull('FULL_NAME')}"
+                                                                        th:text="${plantilla.get('FULL_NAME').asText()}"></span></b></p>
+                                                    <table style="margin-top: 20px;">
+                                                        <tbody>
+                                                        <tr>
+                                                        <td>
+                                                        <div class="firs-row-items-img" style=" text-align: center;
+                                                        padding: 10px 1px;
+                                                        border-radius: 50%;
+                                                        min-width: 50px;
+                                                        background-color: #feee00;
+                                                        margin-right: 10px;">
+                                                        <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/multipagos/iconos/1/bell.png"
+                                                        alt="" class="icon" style="width: 20px;
+                                                            margin: 0 auto;" />
+                                                        </div>
+                                                        </td>
+                                                        <td>
+                                                        <p>Te notificamos que tu <b>Actualizaci&oacute;n de Perfil de Seguridad</b> fue
+                                                        realizada exitosamente. A continuaci&oacute;n, te compartimos el detalle de
+                                                        la misma:</p>
+                                                        </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    </div>
+                                                    </td>
+                                                    </tr>
+                                                    <tr>
+                                                    <td>
+                                                    <div class="second-row">
+                                                    <ul style="list-style: none;padding: 0;">
+                                                                            <li>
+                                                                            <div class="second-row-item-desc">
+                                                                            <p style="margin: 0;"><strong>Dispositivo: </strong> <span
+                                                                            th:if="${plantilla.hasNonNull('USER-AGENT')}"
+                                                                            th:text="${plantilla.get('USER-AGENT').asText()}"></span></p>
+                                                                            </div>
+                                                                            </li>
+                                                                            <li>
+                                                                            <div class="second-row-item-desc">
+                                                                            <p style="margin: 0;"><strong>Ubicaci&oacute;n: </strong> <span
+                                                                            th:if="${plantilla.hasNonNull('location')}"
+                                                                            th:text="${plantilla.get('location').asText()}"></span></p>
+                                                                            </div>
+                                                                            </li>
+                                                                            <li>
+                                                                            <div class="second-row-item-desc">
+                                                                            <p style="margin: 0;"><strong>Fecha y hora: </strong><span
+                                                                            th:if="${plantilla.hasNonNull('DATE-TIME')}"
+                                                                            th:text="${plantilla.get('DATE-TIME').asText()}"></span></p>
+                                                                            </div>
+                                                                            </li>
+                    
+                                                    </ul>
+                                                    </div>
+                                                    </td>
+                                                    </tr>
+                                                    <tr>
+                                                    <td>
+                                                    <div class="thirt-row">
+                                                    <p class="thirt-row-desc">Si no reconoces esta actividad, comun&iacute;cate con nuestros
+                                                    agentes de Call Center v&iacute;a llamada o WhatsApp al <b> 2545-1212 </b>, tambi&eacute;n puedes
+                                                    escribir al correo: <b>asuservicio@banpais.hn</b>.</p>
+                                                    <p class="thirt-row-desc">Haz caso omiso de este mensaje, si solicitaste esta
+                                                    actualizaci&oacute;n.</p>
+                                                    </div>
+                                                    </td>
+                                                    </tr>
+                                                    <tr>
+                                                    <td>
+                                                    <div class="foter-container" style="width: 100%;">
+                                                    <img src="https://www.banpais.hn/boletines/autobole/uploadedimages/footer.jpg" alt=""
+                                                    style=" width: 100%;" />
+                                                    </div>
+                                                    </td>
+                                                    </tr>
+                                                    </tbody>
+                                                    </table>
+                                                </div>
+                                                </div>
+                    </body>
+                    </html>
   statements-server.yml: |
     spring:
       codec:
@@ -25893,7 +26296,7 @@ data:
       ach-configuration:
         alias-policy: alias-name-account
         sorting-policy: alias
-        favorites-ach-endpoint: http://favorites-service:8080/v1/ach
+        favorites-ach-endpoint: http://favorites-service:8080/
          
   minio: |
     url: http://api-minio-banpais-services.apps.okd.bytesw.com 
